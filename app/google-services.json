@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "804070302338",
+    "firebase_url": "https://yoolah-734b9.firebaseio.com",
+    "project_id": "yoolah-734b9",
+    "storage_bucket": "yoolah-734b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:804070302338:android:e51943f7ce76be3ea2ca9b",
+        "android_client_info": {
+          "package_name": "com.appsinventiv.yoolah"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "804070302338-mq32kcfff33vorktsleac7vbfp5he4ps.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsinventiv.yoolah",
+            "certificate_hash": "fa7734f56677f3ea319837d95cad6564d25b63ef"
+          }
+        },
+        {
+          "client_id": "804070302338-ho3mqehv0a8ss3a2euriqu7aq1rsjoio.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBW9dIG6o9pjdG7ZdLzGe6BmHCT29IHrek"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804070302338-ho3mqehv0a8ss3a2euriqu7aq1rsjoio.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
