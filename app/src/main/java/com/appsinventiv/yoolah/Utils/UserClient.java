@@ -85,7 +85,7 @@ public interface UserClient {
     @POST("api/uploadFile")
     @Multipart
     Call<ResponseBody> uploadDocumentFile(
-            @Part MultipartBody.Part file, @Part("document") RequestBody name
+            @Part MultipartBody.Part file, @Part("document") RequestBody name, @Part("extension") RequestBody extension
 
     );
 

@@ -85,6 +85,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + "\uD83D\uDCF7  Image");
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
+            viewHolder.message.setText(userModel.getMessageByName() + ": " + "\uD83D\uDCC4  Document");
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
+            viewHolder.message.setText(userModel.getMessageByName() + ": " + "\uD83C\uDFB5 Audio");
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
+            viewHolder.message.setText(userModel.getMessageByName() + ": " + "deleted message");
         }
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

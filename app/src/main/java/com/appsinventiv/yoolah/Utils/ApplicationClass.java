@@ -2,6 +2,7 @@ package com.appsinventiv.yoolah.Utils;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.StrictMode;
 
 import com.google.firebase.FirebaseApp;
 
@@ -27,6 +28,8 @@ public class ApplicationClass extends Application {
         FirebaseApp.initializeApp(this);
 
         instance = this;
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
     }
 
 

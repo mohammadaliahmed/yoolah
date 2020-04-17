@@ -34,6 +34,9 @@ public class MessageModel {
     @SerializedName("audioUrl")
     @Expose
     private String audioUrl;
+    @SerializedName("videoUrl")
+    @Expose
+    private String videoUrl;
     @SerializedName("imageUrl")
     @Expose
     private String imageUrl;
@@ -43,14 +46,17 @@ public class MessageModel {
     @SerializedName("mediaTime")
     @Expose
     private long mediaTime;
+    @SerializedName("filename")
+    @Expose
+    private String filename;
     @SerializedName("messageUploaded")
     @Expose
-    private boolean messageUploaded=true;
+    private boolean messageUploaded = true;
     String localPath;
 
 
     public MessageModel(Integer id, String messageText, String messageType,
-                        Integer messageById, Integer roomId, Long time, boolean messageUploaded,String localPath) {
+                        Integer messageById, Integer roomId, Long time, boolean messageUploaded, String localPath) {
         this.id = id;
         this.messageText = messageText;
         this.messageType = messageType;
@@ -59,6 +65,35 @@ public class MessageModel {
         this.time = time;
         this.messageUploaded = messageUploaded;
         this.localPath = localPath;
+    }
+
+    public MessageModel(Integer id, String messageText, String messageType,
+                        Integer messageById, Integer roomId, Long time, boolean messageUploaded, String localPath,String filename) {
+        this.id = id;
+        this.messageText = messageText;
+        this.messageType = messageType;
+        this.messageById = messageById;
+        this.roomId = roomId;
+        this.time = time;
+        this.messageUploaded = messageUploaded;
+        this.localPath = localPath;
+        this.filename = filename;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 
     public String getLocalPath() {

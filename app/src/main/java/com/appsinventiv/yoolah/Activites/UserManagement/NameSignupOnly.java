@@ -90,6 +90,8 @@ public class NameSignupOnly extends AppCompatActivity {
                         finish();
 
 
+                    } else {
+                        response.body().getMessage();
                     }
                 } else {
                     CommonUtils.showToast(response.message());

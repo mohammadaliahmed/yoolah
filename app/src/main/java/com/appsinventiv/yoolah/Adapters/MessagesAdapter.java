@@ -10,12 +10,14 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.appsinventiv.yoolah.Activites.PlayVideo;
 import com.appsinventiv.yoolah.Activites.ViewPictures;
 import com.appsinventiv.yoolah.Models.MessageModel;
 import com.appsinventiv.yoolah.R;
@@ -102,8 +104,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         if (model.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
             viewHolder.image.setVisibility(View.VISIBLE);
             viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.GONE);
+
             viewHolder.audio.setVisibility(View.GONE);
             if (model.getLocalPath() == null) {
+
                 Glide.with(context).load(AppConfig.BASE_URL_Image + model.getImageUrl()).into(viewHolder.image);
 
             } else {
@@ -111,28 +116,63 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
             }
             viewHolder.deletedLayout.setVisibility(View.GONE);
-
-
+            viewHolder.videoLayout.setVisibility(View.GONE);
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
             viewHolder.image.setVisibility(View.GONE);
             viewHolder.messageText.setVisibility(View.VISIBLE);
+            viewHolder.document.setVisibility(View.GONE);
+
             viewHolder.messageText.setText(model.getMessageText());
             viewHolder.audio.setVisibility(View.GONE);
             viewHolder.deletedLayout.setVisibility(View.GONE);
+            viewHolder.videoLayout.setVisibility(View.GONE);
+
+
+        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
+            viewHolder.image.setVisibility(View.GONE);
+            viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.VISIBLE);
+            viewHolder.audio.setVisibility(View.GONE);
+            viewHolder.deletedLayout.setVisibility(View.GONE);
+            viewHolder.filename.setText(model.getFilename());
+            viewHolder.videoLayout.setVisibility(View.GONE);
 
 
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
             viewHolder.image.setVisibility(View.GONE);
             viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.GONE);
+
             viewHolder.audio.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.GONE);
+
             viewHolder.deletedLayout.setVisibility(View.VISIBLE);
+            viewHolder.videoLayout.setVisibility(View.GONE);
+
+
+        } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_VIDEO)) {
+            viewHolder.image.setVisibility(View.GONE);
+            viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.GONE);
+            viewHolder.videoLayout.setVisibility(View.VISIBLE);
+            Glide.with(context).load(AppConfig.BASE_URL_Image + model.getImageUrl()).into(viewHolder.videoImage);
+
+            viewHolder.audio.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.GONE);
+
+            viewHolder.deletedLayout.setVisibility(View.GONE);
+
 
         } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
             viewHolder.audio.setVisibility(View.VISIBLE);
             viewHolder.image.setVisibility(View.GONE);
             viewHolder.messageText.setVisibility(View.GONE);
+            viewHolder.document.setVisibility(View.GONE);
+
             viewHolder.playPause.setVisibility(View.VISIBLE);
             viewHolder.deletedLayout.setVisibility(View.GONE);
+            viewHolder.videoLayout.setVisibility(View.GONE);
+
 
             viewHolder.audioTime.setText(CommonUtils.getDuration(model.getMediaTime()));
 
@@ -196,7 +236,54 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             }
         });
 
+        viewHolder.playVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(context, PlayVideo.class);
+                i.putExtra("videoUrl", AppConfig.BASE_URL_Videos + model.getVideoUrl());
+                context.startActivity(i);
+            }
+        });
+        viewHolder.document.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String filename = model.getFilename();
+                File applictionFile = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS) + "/" + filename);
 
+                if (applictionFile != null && applictionFile.exists()) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    context.startActivity(intent);
+
+                } else {
+                    DownloadFile.fromUrll(model.getFilename(), filename);
+                    Intent intent = new Intent();
+                    intent.setAction(android.content.Intent.ACTION_VIEW);
+
+                    intent.setDataAndType(Uri.fromFile(applictionFile), getMimeType(applictionFile.getAbsolutePath()));
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                    context.startActivity(intent);
+                }
+            }
+        });
+
+
+    }
+
+    private String getMimeType(String url) {
+        String parts[] = url.split("\\.");
+        String extension = parts[parts.length - 1];
+        String type = null;
+        if (extension != null) {
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            type = mime.getMimeTypeFromExtension(extension);
+        }
+        return type;
     }
 
     private void downloadAudio(MessageModel model) {
@@ -364,6 +451,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         SeekBar seekBar;
         RelativeLayout audio;
         LinearLayout deletedLayout;
+        TextView filename;
+        LinearLayout document;
+        ImageView playVideo, videoImage;
+        RelativeLayout videoLayout;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -375,10 +466,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             userImage = itemView.findViewById(R.id.userImage);
             name = itemView.findViewById(R.id.name);
             deletedLayout = itemView.findViewById(R.id.deletedLayout);
-
-
+            document = itemView.findViewById(R.id.document);
+            filename = itemView.findViewById(R.id.filename);
+            videoImage = itemView.findViewById(R.id.videoImage);
+            videoLayout = itemView.findViewById(R.id.videoLayout);
             playPause = itemView.findViewById(R.id.playPause);
             seekBar = itemView.findViewById(R.id.seek);
+            playVideo = itemView.findViewById(R.id.playVideo);
             audioTime = itemView.findViewById(R.id.audioTime);
 
 

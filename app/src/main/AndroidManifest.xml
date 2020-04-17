@@ -71,17 +71,25 @@
             android:name=".Activites.EditGroupInfo"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activites.UserManagement.RegisterActivity" />
-        <activity android:name=".Activites.ViewPictures" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".Activites.ViewPictures"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activites.CreatePollActivity" />
         <activity android:name=".Activites.FillPoll" />
         <activity android:name=".Activites.ListOfPolls" />
         <activity android:name=".Activites.PollsListToFill" />
-        <activity android:name=".Activites.UserManagement.LoginUser"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".Activites.UserManagement.NameSignupOnly"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".Activites.AddUserToRoomWithRoomId"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".Activites.UserManagement.LoginUser"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activites.UserManagement.NameSignupOnly"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activites.AddUserToRoomWithRoomId"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Activites.PlayVideo"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

@@ -94,6 +94,8 @@ public class LoginActivity extends AppCompatActivity {
                         SharedPrefs.setUserModel(user);
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
+                    }else{
+                        CommonUtils.showToast(response.body().getMessage());
                     }
                 } else {
                     CommonUtils.showToast(response.message());

@@ -5,9 +5,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AppConfig {
     //    public static String LPTOP_ID = "http://172.29.27.84/yoolah/";
-    public static String LPTOP_ID = "http://192.168.8.101/yoolah/";
+    public static String LPTOP_ID = "http://192.168.8.100/yoolah/";
     public static String SERVER_URL = "http://yoolah.acnure.com/";
-    public static String BASE_URL = LPTOP_ID;
+    public static String BASE_URL = SERVER_URL;
     public static String API_USERNAME = "WF9.FJ8u'FP{c5Pw";
     public static String API_PASSOWRD = "3B~fauh5s93j[FKb";
 
@@ -24,10 +24,4 @@ public class AppConfig {
                 .build();
     }
 
-    public static Retrofit getTokenUrl() {
-        return new Retrofit.Builder()
-                .baseUrl(AppConfig.TOKKEN)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-    }
 }

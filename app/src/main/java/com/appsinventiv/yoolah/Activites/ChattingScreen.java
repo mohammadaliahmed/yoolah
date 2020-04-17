@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -48,6 +49,7 @@ import com.appsinventiv.yoolah.Utils.AppConfig;
 import com.appsinventiv.yoolah.Utils.CommonUtils;
 import com.appsinventiv.yoolah.Utils.CompressImage;
 import com.appsinventiv.yoolah.Utils.Constants;
+import com.appsinventiv.yoolah.Utils.FileUtils;
 import com.appsinventiv.yoolah.Utils.GifSizeFilter;
 import com.appsinventiv.yoolah.Utils.Glide4Engine;
 import com.appsinventiv.yoolah.Utils.NotificationAsync;
@@ -71,16 +73,20 @@ import com.zhihu.matisse.filter.Filter;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -96,6 +102,8 @@ import retrofit2.Response;
 
 public class ChattingScreen extends AppCompatActivity implements NotificationObserver {
 
+    private static final int REQUEST_CODE_CHOOSE_VIDEO = 24;
+    private static final int REQUEST_CAPTURE_IMAGE = 100;
     boolean isAttachAreaVisible = false;
 
     Integer roomId;
@@ -127,7 +135,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     String recordingLocalUrl;
     CardView attachArea;
     long recordingTime = 0L;
-    ImageView attach, pickCamera, pickDocument;
+    ImageView attach, pickCamera, pickDocument, pickVideo, pickImg;
     private String docfileName;
     private List<UserModel> particiapantsList = new ArrayList<>();
     private String messageText;
@@ -138,6 +146,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
     RelativeLayout bottomArea, cannotSend;
     String picture;
+    private String liveUrlVideoPic;
+    private String imageFilePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,6 +173,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         recordButton = (RecordButton) findViewById(R.id.record_button);
         addParticipant = findViewById(R.id.addParticipant);
         createPoll = findViewById(R.id.createPoll);
+        pickImg = findViewById(R.id.pickImg);
+        pickVideo = findViewById(R.id.pickVideo);
         recordingArea = findViewById(R.id.recordingArea);
         messagingArea = findViewById(R.id.messageArea);
         initRecording();
@@ -219,10 +231,39 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 finish();
             }
         });
+
         pickCamera.setOnClickListener(new View.OnClickListener() {
             @Override
+            public void onClick(View view) {
+
+                openCameraAndTakePic();
+            }
+        });
+
+        pickImg.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
+                if (isAttachAreaVisible) {
+                    attachArea.setVisibility(View.GONE);
+                    isAttachAreaVisible = false;
+                } else {
+                    attachArea.setVisibility(View.VISIBLE);
+                    isAttachAreaVisible = true;
+                }
                 initMatisse();
+            }
+        });
+        pickVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isAttachAreaVisible) {
+                    attachArea.setVisibility(View.GONE);
+                    isAttachAreaVisible = false;
+                } else {
+                    attachArea.setVisibility(View.VISIBLE);
+                    isAttachAreaVisible = true;
+                }
+                initVideoMatisse();
             }
         });
 
@@ -353,6 +394,60 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
         getRoomMessagesFromDB();
 
+
+    }
+
+    private void openCameraAndTakePic() {
+        Intent pictureIntent = new Intent(
+                MediaStore.ACTION_IMAGE_CAPTURE);
+        if (pictureIntent.resolveActivity(getPackageManager()) != null) {
+            //Create a file to store the image
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+            }
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this, "com.appsinventiv.yoolah.provider", photoFile);
+                pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                        photoURI);
+                startActivityForResult(pictureIntent,
+                        REQUEST_CAPTURE_IMAGE);
+            }
+        }
+    }
+
+    private File createImageFile() throws IOException {
+        String timeStamp =
+                new SimpleDateFormat("yyyyMMdd_HHmmss",
+                        Locale.getDefault()).format(new Date());
+        String imageFileName = "IMG_" + timeStamp + "_";
+        File storageDir =
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        imageFilePath = image.getAbsolutePath();
+
+        return image;
+    }
+
+    private void initVideoMatisse() {
+        Matisse.from(this)
+                .choose(MimeType.ofVideo())
+                .countable(true)
+                .maxSelectable(1)
+                .showSingleMediaType(true)
+                .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
+                .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .imageEngine(new Glide4Engine())
+                .forResult(REQUEST_CODE_CHOOSE_VIDEO);
 
     }
 
@@ -516,9 +611,12 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     }
 
     private void openFile(Integer CODE) {
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+//        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+        Intent i = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
         i.setType("*/*");
         startActivityForResult(i, CODE);
+
     }
 
     private void initRecording() {
@@ -710,10 +808,55 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             }
 
         }
-        if (requestCode == REQUEST_CODE_FILE && data != null) {
-            Uri Fpath = data.getData();
-            uploadDocumentToServer("" + Fpath);
+        if (requestCode == 24) {
+            if (data != null) {
+                mSelected = Matisse.obtainResult(data);
+                MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+                        Constants.MESSAGE_TYPE_VIDEO,
+                        SharedPrefs.getUserModel().getId(),
+                        roomId, System.currentTimeMillis(), false, "" + mSelected.get(0)
+                );
+                itemList.add(messageModel);
+                adapter.setItemList(itemList);
+                recycler.scrollToPosition(itemList.size() - 1);
 
+                uploadVideoToServer("" + CommonUtils.getRealPathFromURI(mSelected.get(0)));
+
+            }
+
+        }
+        if (requestCode == REQUEST_CODE_FILE && data != null) {
+//            Uri Fpath = data.getData();
+            Uri uri = data.getData();
+
+            File file = new File(uri.getPath());//create path from uri
+            final String[] split = file.getPath().split(":");//split the path.
+            try {
+                String filePath = split[1];
+
+                uploadDocumentToServer(filePath);
+
+            } catch (Exception e) {
+//                CommonUtils.showToast("invalid file");
+            }
+
+        }
+        if (requestCode == REQUEST_CAPTURE_IMAGE) {
+            CompressImage compressImage = new CompressImage(ChattingScreen.this);
+            Uri abc = Uri.fromFile(new File(imageFilePath));
+            compressedUrl = compressImage.compressImage("" + abc);
+            MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+                    Constants.MESSAGE_TYPE_IMAGE,
+                    SharedPrefs.getUserModel().getId(),
+                    roomId, System.currentTimeMillis(), false, "" + compressedUrl
+            );
+            itemList.add(messageModel);
+            adapter.setItemList(itemList);
+            recycler.scrollToPosition(itemList.size() - 1);
+            uploadImageToServer();
+            //don't compare the data to null, it will always come as  null because we are providing a file URI, so load with the imageFilePath we obtained before opening the cameraIntent
+//            Glide.with(this).load(imageFilePath).into(mImageView);
+            // If you are using Glide.
         }
     }
 
@@ -721,6 +864,49 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName += "/r";
+    }
+
+    private void uploadVideoToServer(String url) {
+
+        // create upload service client
+        File file = new File(url);
+
+        UserClient service = AppConfig.getRetrofit().create(UserClient.class);
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("video/*"), file);
+        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("video", file.getName(), requestBody);
+        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+        // finally, execute the request
+        Call<ResponseBody> call = service.uploadVideoFile(fileToUpload, filename);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.code() == 200) {
+
+                    try {
+                        liveUrl = response.body().string();
+//                        sendMessage(Constants.MESSAGE_TYPE_VIDEO);
+                        uploadVideoImageToServer(CommonUtils.getVideoPic(AppConfig.BASE_URL_Videos + liveUrl));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+//                    CommonUtils.showToast(response.body().getUrl());
+                } else {
+//                    CommonUtils.showToast(response.code() + " " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+//                CommonUtils.showToast(t.getMessage());
+            }
+        });
+
+
     }
 
     private void uploadImageToServer() {
@@ -744,6 +930,48 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                     try {
                         liveUrl = response.body().string();
                         sendMessage(Constants.MESSAGE_TYPE_IMAGE);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+//                    CommonUtils.showToast(response.body().getUrl());
+                } else {
+//                    CommonUtils.showToast(response.code() + " " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+//                CommonUtils.showToast(t.getMessage());
+            }
+        });
+
+
+    }
+
+    private void uploadVideoImageToServer(Uri videoPic) {
+
+        // create upload service client
+        File file = new File(CommonUtils.getRealPathFromURI(videoPic));
+
+        UserClient service = AppConfig.getRetrofit().create(UserClient.class);
+
+        RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+        MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("photo", file.getName(), requestBody);
+        RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+        // finally, execute the request
+        Call<ResponseBody> call = service.uploadFile(fileToUpload, filename);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.code() == 200) {
+
+                    try {
+                        liveUrlVideoPic = response.body().string();
+                        sendMessage(Constants.MESSAGE_TYPE_VIDEO);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -809,10 +1037,21 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
     private void uploadDocumentToServer(String documetnFile) {
         // create upload service client
-        Uri uri = Uri.fromFile(new File(documetnFile));
+        Uri uri = Uri.fromFile(new File("" + documetnFile));
 
         docfileName = CommonUtils.uri2filename(uri);
+//        File file = new File(documetnFile);
         File file = new File(documetnFile);
+
+
+        MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+                Constants.MESSAGE_TYPE_DOCUMENT,
+                SharedPrefs.getUserModel().getId(),
+                roomId, System.currentTimeMillis(), false, "", docfileName
+        );
+        itemList.add(messageModel);
+        adapter.setItemList(itemList);
+        recycler.scrollToPosition(itemList.size() - 1);
 
 
         UserClient service = AppConfig.getRetrofit().create(UserClient.class);
@@ -820,9 +1059,10 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         RequestBody requestBody = RequestBody.create(MediaType.parse("document/*"), file);
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("document", file.getName(), requestBody);
         RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+        RequestBody extension = RequestBody.create(MediaType.parse("text/plain"), ".pdf");
 
         // finally, execute the request
-        Call<ResponseBody> call = service.uploadDocumentFile(fileToUpload, filename);
+        Call<ResponseBody> call = service.uploadDocumentFile(fileToUpload, filename, extension);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -843,7 +1083,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-
+//                CommonUtils.showToast(t.getMessage());
 //                CommonUtils.showToast(t.getMessage());
             }
         });
@@ -1003,6 +1243,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             map.addProperty("mediaTime", recordingTime);
 
         } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_VIDEO)) {
+            map.addProperty("videoUrl", liveUrl);
+            map.addProperty("imageUrl", liveUrlVideoPic);
 
         } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_DOCUMENT)) {
             map.addProperty("documentUrl", liveUrl);

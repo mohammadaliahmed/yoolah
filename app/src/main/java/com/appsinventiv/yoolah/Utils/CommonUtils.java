@@ -105,7 +105,9 @@ public class CommonUtils {
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             image.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            String path = MediaStore.Images.Media.insertImage(ApplicationClass.getInstance().getApplicationContext().getContentResolver(), image, "Title", null);
+            String recordingLocalUrl = Long.toHexString(Double.doubleToLongBits(Math.random()));
+
+            String path = MediaStore.Images.Media.insertImage(ApplicationClass.getInstance().getApplicationContext().getContentResolver(), image, recordingLocalUrl, null);
             return Uri.parse(path);
         } catch (Exception e) {
             e.printStackTrace();
@@ -243,6 +245,7 @@ public class CommonUtils {
         shareIntent.putExtra(Intent.EXTRA_TEXT, AppConfig.BASE_URL + append + "/" + postId);
         context.startActivity(Intent.createChooser(shareIntent, "Share via.."));
     }
+
     public static String getDuration(long seconds) {
         seconds = (seconds / 1000);
         long s = seconds % 60;
@@ -250,6 +253,7 @@ public class CommonUtils {
         long h = (seconds / (60 * 60)) % 24;
         return String.format("%2d:%02d", m, s);
     }
+
     public static String uri2filename(Uri uri) {
 
         String ret = null;
@@ -265,4 +269,5 @@ public class CommonUtils {
         }
         return ret;
     }
+
 }
