@@ -16,6 +16,9 @@ public class MessageModel {
     @SerializedName("messageByName")
     @Expose
     private String messageByName;
+    @SerializedName("documentUrl")
+    @Expose
+    private String documentUrl;
     @SerializedName("messageById")
     @Expose
     private Integer messageById;
@@ -67,8 +70,15 @@ public class MessageModel {
         this.localPath = localPath;
     }
 
+    public MessageModel(int id,String messageText, String messageType,long time) {
+        this.messageText = messageText;
+        this.id = id;
+        this.messageType = messageType;
+        this.time = time;
+    }
+
     public MessageModel(Integer id, String messageText, String messageType,
-                        Integer messageById, Integer roomId, Long time, boolean messageUploaded, String localPath,String filename) {
+                        Integer messageById, Integer roomId, Long time, boolean messageUploaded, String localPath, String filename) {
         this.id = id;
         this.messageText = messageText;
         this.messageType = messageType;
@@ -78,6 +88,14 @@ public class MessageModel {
         this.messageUploaded = messageUploaded;
         this.localPath = localPath;
         this.filename = filename;
+    }
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
     }
 
     public String getFilename() {

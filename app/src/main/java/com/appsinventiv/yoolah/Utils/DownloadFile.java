@@ -33,10 +33,10 @@ public class DownloadFile {
 //        String string = Long.toHexString(Double.doubleToLongBits(Math.random()));
 
         DownloadManager downloadManager = (DownloadManager) ApplicationClass.getInstance().getApplicationContext().getSystemService(DOWNLOAD_SERVICE);
-        Uri uri = Uri.parse(Url);
+        Uri uri = Uri.parse(AppConfig.BASE_URL_Documents+Url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
-//        Long referene = downloadManager.enqueue(request);
+        Long referene = downloadManager.enqueue(request);
 //        DownloadManager downloadManagerr = (DownloadManager) ApplicationClass.getInstance().getApplicationContext().getSystemService(DOWNLOAD_SERVICE);
         downloadID = downloadManager.enqueue(request);
 

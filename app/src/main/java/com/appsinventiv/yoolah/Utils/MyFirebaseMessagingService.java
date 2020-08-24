@@ -12,14 +12,24 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.appsinventiv.yoolah.Activites.ChattingScreen;
+import com.appsinventiv.yoolah.Activites.FillPoll;
 import com.appsinventiv.yoolah.Activites.MainActivity;
+import com.appsinventiv.yoolah.Database.Word;
+import com.appsinventiv.yoolah.Database.WordDao;
+import com.appsinventiv.yoolah.Database.WordRepository;
+import com.appsinventiv.yoolah.Database.WordViewModel;
+import com.appsinventiv.yoolah.Models.MessageModel;
 import com.appsinventiv.yoolah.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
@@ -36,6 +46,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private String Id, PictureUrl;
     private int ChannelId;
     SoundPool sp;
+    WordRepository mRepository;
+    String messageJson;
+    private Word msgModel;
 
 
     @Override
@@ -44,7 +57,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 //        Log.d(TAG, "From: " + remoteMessage.getFrom());
 
         // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
+        if (remoteMessage.getData().size() > 0 && SharedPrefs.getUserModel() != null) {
             Log.d("message payload", "Message data payload: " + remoteMessage.getData());
             msg = "" + remoteMessage.getData();
 
@@ -54,18 +67,48 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             title = map.get("Title");
             type = map.get("Type");
             Id = map.get("Id");
+            messageJson = map.get("messageJson");
             handleNow(title, message, type);
             if (type.equalsIgnoreCase("chat")) {
-                sendMessage();
+                msgModel = new Gson().fromJson(
+                        messageJson, new TypeToken<Word>() {
+                        }.getType()
+                );
+                mRepository = new WordRepository(ApplicationClass.getInstance());
+                inserDateBubble();
+                if (!msgModel.getMessageById().equals(SharedPrefs.getUserModel().getId())) {
+                    msgModel.setMessageRead(false);
+
+                    mRepository.insert(msgModel);
+                }
+//                sendMessage();
             }
-
-
         }
-
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d("body", "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
+    }
+
+    private void  inserDateBubble() {
+
+        if (!SharedPrefs.getLastDate(msgModel.getRoomId()).equals(CommonUtils.getDate(System.currentTimeMillis()))) {
+            Word amsgModel = new Word(
+                    1,
+                    CommonUtils.getDate(System.currentTimeMillis()),
+                    Constants.MESSAGE_TYPE_BUBBLE,
+                    SharedPrefs.getUserModel().getName(),
+                    "", SharedPrefs.getUserModel().getId(),
+                    msgModel.getRoomId(),
+                    System.currentTimeMillis()-2000,
+                    "", "", ""
+                    , "", 0, "", msgModel.getGroupPicUrl()
+                    , msgModel.getRoomName(),
+                    true);
+            mRepository.insert(amsgModel);
+            SharedPrefs.setLastDate(CommonUtils.getDate(System.currentTimeMillis()), msgModel.getRoomId());
+        }
+
     }
 
     private void sendMessage() {
@@ -78,6 +121,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void handleNow(String notificationTitle, String messageBody, String type) {
 
+
         int num = (int) System.currentTimeMillis();
         /**Creates an explicit intent for an Activity in your app**/
         Intent resultIntent = null;
@@ -88,6 +132,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             resultIntent = new Intent(this, ChattingScreen.class);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             resultIntent.putExtra("roomId", Integer.parseInt(Id));
+
+        }
+        if (type.equalsIgnoreCase("poll")) {
+            resultIntent = new Intent(this, FillPoll.class);
+            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            resultIntent.putExtra("pollId", Integer.parseInt(Id));
 
         }
 //        else if (type.equalsIgnoreCase(Constants.NOTIFICATION_CHAT)) {
@@ -124,6 +174,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             mNotificationManager.createNotificationChannel(notificationChannel);
         }
         assert mNotificationManager != null;
-        mNotificationManager.notify(num /* Request Code */, mBuilder.build());
+        mNotificationManager.notify(Integer.parseInt(Id) /* Request Code */, mBuilder.build());
     }
 }

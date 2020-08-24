@@ -4,17 +4,20 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,34 +25,32 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.appsinventiv.yoolah.Adapters.MessagesAdapter;
+import com.appsinventiv.yoolah.Adapters.WordMessagesAdapter;
+import com.appsinventiv.yoolah.Database.Word;
+import com.appsinventiv.yoolah.Database.WordRepository;
+import com.appsinventiv.yoolah.Database.WordViewModel;
 import com.appsinventiv.yoolah.Models.MessageModel;
-import com.appsinventiv.yoolah.Models.UserMessages;
 import com.appsinventiv.yoolah.Models.UserModel;
 import com.appsinventiv.yoolah.NetworkResponses.AllRoomMessagesResponse;
-import com.appsinventiv.yoolah.NetworkResponses.NewMessageResponse;
-import com.appsinventiv.yoolah.NetworkResponses.RoomDetailsResponse;
 import com.appsinventiv.yoolah.NetworkResponses.RoomInfoResponse;
 import com.appsinventiv.yoolah.R;
 import com.appsinventiv.yoolah.Utils.AppConfig;
+import com.appsinventiv.yoolah.Utils.ApplicationClass;
 import com.appsinventiv.yoolah.Utils.CommonUtils;
 import com.appsinventiv.yoolah.Utils.CompressImage;
 import com.appsinventiv.yoolah.Utils.Constants;
-import com.appsinventiv.yoolah.Utils.FileUtils;
 import com.appsinventiv.yoolah.Utils.GifSizeFilter;
 import com.appsinventiv.yoolah.Utils.Glide4Engine;
 import com.appsinventiv.yoolah.Utils.NotificationAsync;
@@ -57,37 +58,42 @@ import com.appsinventiv.yoolah.Utils.NotificationObserver;
 import com.appsinventiv.yoolah.Utils.SharedPrefs;
 import com.appsinventiv.yoolah.Utils.UserClient;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordListener;
 import com.devlomi.record_view.RecordButton;
 import com.devlomi.record_view.RecordView;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.shain.messenger.MessageSwipeController;
+import com.shain.messenger.SwipeControllerActions;
+import com.vincent.filepicker.Constant;
+import com.vincent.filepicker.activity.NormalFilePickActivity;
+import com.vincent.filepicker.filter.entity.NormalFile;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -111,8 +117,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     EditText message;
     ImageView send;
     RecyclerView recycler;
-    MessagesAdapter adapter;
-    private List<MessageModel> itemList = new ArrayList<>();
+    WordMessagesAdapter adapter;
+    private List<Word> itemList = new ArrayList<>();
     private static final int REQUEST_CODE_FILE = 25;
 
     private static final int REQUEST_CODE_CHOOSE = 23;
@@ -135,7 +141,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     String recordingLocalUrl;
     CardView attachArea;
     long recordingTime = 0L;
-    ImageView attach, pickCamera, pickDocument, pickVideo, pickImg;
+    ImageView attach, pickCamera;
+    LinearLayout pickDocument, pickVideo, pickImg, pickLocation, pickContact;
     private String docfileName;
     private List<UserModel> particiapantsList = new ArrayList<>();
     private String messageText;
@@ -148,16 +155,26 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     String picture;
     private String liveUrlVideoPic;
     private String imageFilePath;
+    private String videoPath;
+    private File thumbFilename;
+    private String documentType;
+    Calendar calendar;
+    private MessageSwipeController swipeController;
+    private WordViewModel mWordViewModel;
+    private Word myWordModel;
+    private double lat, lon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting_screen);
-        LocalBroadcastManager.getInstance(ChattingScreen.this).registerReceiver(mMessageReceiver,
-                new IntentFilter("newMsg"));
-
+        calendar = Calendar.getInstance();
         getPermissions();
+        roomId = getIntent().getIntExtra("roomId", 0);
+        mWordViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
 
+        pickLocation = findViewById(R.id.pickLocation);
+        pickContact = findViewById(R.id.pickContact);
         bottomArea = findViewById(R.id.bottomArea);
         cannotSend = findViewById(R.id.cannotSend);
         image = findViewById(R.id.image);
@@ -189,11 +206,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             }
         });
 
-        roomId = getIntent().getIntExtra("roomId", 0);
         name = getIntent().getStringExtra("name");
         picture = getIntent().getStringExtra("picture");
-
-        markAsRead();
 
 
         try {
@@ -206,24 +220,51 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
 
         recycler.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        HashMap<Integer, List<MessageModel>> maap = SharedPrefs.getInsideMessages(roomId);
+        swipeController = new MessageSwipeController(this, new SwipeControllerActions() {
+            @Override
+            public void showReplyUI(int position) {
+//                showReplyLayout(position);
+            }
+        });
 
-        if (maap != null && maap.size() > 0) {
-            List<MessageModel> list = maap.get(roomId);
-            if (list != null && list.size() > 0) {
-                itemList = list;
-                recycler.scrollToPosition(itemList.size() - 1);
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(recycler);
+//        HashMap<Integer, List<Word>> maap = SharedPrefs.getInsideMessages(roomId);
 
+//        if (maap != null && maap.size() > 0) {
+//            List<Word> list = maap.get(roomId);
+//            if (list != null && list.size() > 0) {
+//                addBubble(list);
+////                itemList = list;
+//                recycler.scrollToPosition(itemList.size() - 1);
+//
+//            }
+//
+//        }
+
+        adapter = new WordMessagesAdapter(this, itemList, new WordMessagesAdapter.MessagesCallback() {
+            @Override
+            public void onDelete(Word messageModel, int position) {
+                showDeleteAlert(messageModel, position);
             }
 
-        }
-        adapter = new MessagesAdapter(this, itemList, new MessagesAdapter.MessagesCallback() {
             @Override
-            public void onDelete(MessageModel messageModel, int position) {
-                showDeleteAlert(messageModel, position);
+            public void onUpdateMessage(Word messageModel) {
+                mWordViewModel.updateWord(messageModel);
             }
         });
         recycler.setAdapter(adapter);
+        mWordViewModel.getAllWords(roomId).observe(this, new Observer<List<Word>>() {
+            @Override
+            public void onChanged(@Nullable List<Word> words) {
+                adapter.setItemList(words);
+                itemList = words;
+                recycler.scrollToPosition(itemList.size() - 1);
+            }
+
+        });
+        getRoomDataFromDb();
+
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,6 +272,39 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 finish();
             }
         });
+
+
+        pickContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isAttachAreaVisible) {
+                    attachArea.setVisibility(View.GONE);
+                    isAttachAreaVisible = false;
+                } else {
+                    attachArea.setVisibility(View.VISIBLE);
+                    isAttachAreaVisible = true;
+                }
+                Intent i = new Intent(ChattingScreen.this, PhoneContacts.class);
+                startActivityForResult(i, 50);
+            }
+        });
+        pickLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isAttachAreaVisible) {
+                    attachArea.setVisibility(View.GONE);
+                    isAttachAreaVisible = false;
+                } else {
+                    attachArea.setVisibility(View.VISIBLE);
+                    isAttachAreaVisible = true;
+                }
+                Intent i = new Intent(ChattingScreen.this, GPSTrackerActivity.class);
+
+                startActivityForResult(i, 1);
+
+            }
+        });
+
 
         pickCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -280,7 +354,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             }
         });
 
-        getRoomDataFromDb();
 
         pickDocument.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -335,15 +408,20 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                     message.setError("Cant send empty message");
                 } else {
                     messageText = message.getText().toString();
-
-                    MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+                    inserDateBubble();
+                    myWordModel = new Word(
+                            1,
+                            messageText,
                             Constants.MESSAGE_TYPE_TEXT,
-                            SharedPrefs.getUserModel().getId(),
-                            roomId, System.currentTimeMillis(), false, ""
-                    );
-                    itemList.add(messageModel);
-                    adapter.setItemList(itemList);
-                    recycler.scrollToPosition(itemList.size() - 1);
+                            SharedPrefs.getUserModel().getName(),
+                            "", SharedPrefs.getUserModel().getId(),
+                            roomId,
+                            System.currentTimeMillis(),
+                            "", "", ""
+                            , "", 0, "", object.getRoom().getCover_url()
+                            , object.getRoom().getTitle(),
+                            true);
+                    mWordViewModel.insert(myWordModel);
 
                     message.setText("");
                     sendMessage(Constants.MESSAGE_TYPE_TEXT);
@@ -392,8 +470,27 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             }
         });
 
-        getRoomMessagesFromDB();
 
+    }
+
+    private void inserDateBubble() {
+
+        if (!SharedPrefs.getLastDate(roomId).equals(CommonUtils.getDate(System.currentTimeMillis()))) {
+            myWordModel = new Word(
+                    1,
+                    CommonUtils.getDate(System.currentTimeMillis()),
+                    Constants.MESSAGE_TYPE_BUBBLE,
+                    SharedPrefs.getUserModel().getName(),
+                    "", SharedPrefs.getUserModel().getId(),
+                    roomId,
+                    System.currentTimeMillis(),
+                    "", "", ""
+                    , "", 0, "", object.getRoom().getCover_url()
+                    , object.getRoom().getTitle(),
+                    true);
+            mWordViewModel.insert(myWordModel);
+            SharedPrefs.setLastDate(CommonUtils.getDate(System.currentTimeMillis()), roomId);
+        }
 
     }
 
@@ -452,11 +549,50 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     }
 
     private void markAsRead() {
+        try {
+            Word mod = itemList.get(itemList.size() - 1);
+            mod.setMessageRead(true);
+            mWordViewModel.updateWord(mod);
+
+            if (mod.getMessageById() == object.getRoom().getUserid()) {
+                markAsReadOnServer(mod);
+
+            }
+
+        } catch (
+                Exception e) {
+
+        }
 
 
     }
 
-    private void showDeleteAlert(MessageModel messageModel, int position) {
+    private void markAsReadOnServer(Word mod) {
+        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
+
+        JsonObject map = new JsonObject();
+        map.addProperty("api_username", AppConfig.API_USERNAME);
+        map.addProperty("api_password", AppConfig.API_PASSOWRD);
+        map.addProperty("messageId", mod.getServerId());
+        map.addProperty("userId", SharedPrefs.getUserModel().getId());
+        map.addProperty("roomId", roomId);
+        Call<ResponseBody> call = getResponse.markAsReadOnServer(map);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.code() == 200) {
+                } else {
+                    CommonUtils.showToast(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            }
+        });
+    }
+
+    private void showDeleteAlert(Word messageModel, int position) {
         final Dialog dialog = new Dialog(this);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -467,6 +603,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         dialog.setContentView(layout);
 
         View deleteView = layout.findViewById(R.id.deleteView);
+        TextView showInfo = layout.findViewById(R.id.showInfo);
         TextView copy = layout.findViewById(R.id.copy);
         TextView cancel = layout.findViewById(R.id.cancel);
         TextView delete = layout.findViewById(R.id.delete);
@@ -476,6 +613,9 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             deleteView.setVisibility(View.GONE);
         } else {
             if (messageModel.getMessageById().equals(SharedPrefs.getUserModel().getId())) {
+                if (messageModel.getMessageById().equals(object.getRoom().getUserid())) {
+                    showInfo.setVisibility(View.VISIBLE);
+                }
                 if (messageModel.getTime() > (System.currentTimeMillis() - 25200000l)) {
                     deleteForEveryOne.setVisibility(View.VISIBLE);
                     deleteView.setVisibility(View.VISIBLE);
@@ -489,10 +629,25 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             }
         }
 
+        showInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                Intent i = new Intent(ChattingScreen.this, ViewMessageInfo.class);
+                i.putExtra("messageId", messageModel.getServerId());
+                i.putExtra("roomId", roomId);
+                startActivity(i);
+            }
+        });
+
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                ClipboardManager myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                String text;
+                ClipData myClip = ClipData.newPlainText("message", messageModel.getMessageText());
+                myClipboard.setPrimaryClip(myClip);
                 CommonUtils.showToast("Copied to clipboard");
             }
         });
@@ -516,18 +671,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                HashMap<Integer, Integer> map = SharedPrefs.getDeletedMessagesId();
-                if (map != null) {
-                    map.put(messageModel.getId(), messageModel.getId());
-                    SharedPrefs.setDeletedMessagesId(map);
-                } else {
-                    map = new HashMap<>();
-                    map.put(messageModel.getId(), messageModel.getId());
-                    SharedPrefs.setDeletedMessagesId(map);
-                }
-                itemList.remove(position);
-                adapter.setItemList(itemList);
+                mWordViewModel.deleteWord(messageModel);
                 dialog.dismiss();
 
             }
@@ -538,9 +682,9 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
     }
 
-    private void callDeleteApi(MessageModel messageModel, int position) {
+    private void callDeleteApi(Word messageModel, int position) {
 //        itemList.remove(position);
-        MessageModel msg = itemList.get(position);
+        Word msg = itemList.get(position);
         msg.setMessageType(Constants.MESSAGE_TYPE_DELETED);
         adapter.notifyItemChanged(position);
         UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
@@ -554,7 +698,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             public void onResponse(Call<AllRoomMessagesResponse> call, Response<AllRoomMessagesResponse> response) {
                 if (response.code() == 200) {
 
-                    handleMessagesList(response);
+//                    handleMessagesList(response);
                 } else {
                     CommonUtils.showToast(response.message());
                 }
@@ -579,30 +723,31 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         dialog.setContentView(layout);
 
         Button send = layout.findViewById(R.id.send);
-        ImageView image = layout.findViewById(R.id.image);
-        TextView url = layout.findViewById(R.id.url);
-
-
-        url.setText("http://yoolah.acnure.com/r" + roomId);
-        String imgUrl = AppConfig.BASE_URL_QR + roomId + "qrcode.png";
-        Glide.with(this).load(AppConfig.BASE_URL_QR + roomId + "qrcode.png").into(image);
+        EditText email = layout.findViewById(R.id.email);
+        ProgressBar mailProgress = layout.findViewById(R.id.mailProgress);
 
 
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String html = "Please click on the link below to view the qr code\n\n" + "http://yoolah.acnure.com/viewqr/" + roomId;
-
-
-                final Intent shareIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Invititation to join Yoolah group");
-                shareIntent.putExtra(
-                        Intent.EXTRA_TEXT,
-                        html
-                );
-
-                startActivity(shareIntent);
-                dialog.dismiss();
+                if (email.getText().length() == 0) {
+                    email.setError("Enter email");
+                } else {
+                    mailProgress.setVisibility(View.VISIBLE);
+                    callEmailAPi(email.getText().toString(), dialog);
+                }
+//                String html = "Please click on the link below to view the qr code\n\n" + "http://yoolah.acnure.com/viewqr/" + roomId;
+//
+//
+//                final Intent shareIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"));
+//                shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Invititation to join Yoolah group");
+//                shareIntent.putExtra(
+//                        Intent.EXTRA_TEXT,
+//                        html
+//                );
+//
+//                startActivity(shareIntent);
+//                dialog.dismiss();
             }
         });
         dialog.show();
@@ -610,12 +755,42 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
     }
 
+    private void callEmailAPi(String email, Dialog dialog) {
+        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
+
+        JsonObject map = new JsonObject();
+        map.addProperty("api_username", AppConfig.API_USERNAME);
+        map.addProperty("api_password", AppConfig.API_PASSOWRD);
+        map.addProperty("roomId", roomId);
+        map.addProperty("email", email);
+        Call<ResponseBody> call = getResponse.inviteUserFromApp(map);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                dialog.dismiss();
+                if (response.code() == 200) {
+                    CommonUtils.showToast("Email sent");
+                } else {
+                    CommonUtils.showToast(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                dialog.dismiss();
+            }
+        });
+    }
+
     private void openFile(Integer CODE) {
 //        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-        Intent i = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-        i.setType("*/*");
-        startActivityForResult(i, CODE);
+//        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+//        i.setType("*/*");
+//        startActivityForResult(i, CODE);
+        Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+        intent4.putExtra(Constant.MAX_NUMBER, 1);
+        intent4.putExtra(NormalFilePickActivity.SUFFIX, new String[]{"xlsx", "xls", "doc", "docx", "ppt", "pptx", "pdf"});
+        startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
 
     }
 
@@ -627,7 +802,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 //Start Recording..
                 Log.d("RecordView", "onStart");
                 mRecorder = null;
-                setMargins(recycler, 0, 0, 0, 170);
                 startRecording();
 
 
@@ -737,18 +911,21 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
-            MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+            myWordModel = new Word(
+                    1,
+                    "",
                     Constants.MESSAGE_TYPE_AUDIO,
+                    SharedPrefs.getUserModel().getName(),
+                    "",
                     SharedPrefs.getUserModel().getId(),
-                    roomId, System.currentTimeMillis(), false, mFileName + recordingLocalUrl + ".mp3"
-            );
-            itemList.add(messageModel);
-            adapter.setItemList(itemList);
-            recycler.scrollToPosition(itemList.size() - 1);
-
+                    roomId,
+                    System.currentTimeMillis(),
+                    mFileName + recordingLocalUrl + ".mp3", "", ""
+                    , SharedPrefs.getUserModel().getPicUrl(), recordingTime
+                    , "",
+                    object.getRoom().getCover_url(), object.getRoom().getTitle(), true);
+            mWordViewModel.insert(myWordModel);
             uploadAudioToServer(mFileName + recordingLocalUrl + ".mp3");
-
-
         } catch (NullPointerException e) {
 
         } finally {
@@ -757,14 +934,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 //            mRecorder = null;
         }
 
-    }
-
-    private void setMargins(View view, int left, int top, int right, int bottom) {
-//        if (view.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-//            ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-//            p.setMargins(left, top, right, bottom);
-//            view.requestLayout();
-//        }
     }
 
 
@@ -788,21 +957,56 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (data != null) {
+                lat = data.getDoubleExtra("Latitude", 0);
+                lon = data.getDoubleExtra("Longitude", 0);
+                showLocationShareAlert();
 
+            }
+        }
+        if (requestCode == 50 && resultCode == RESULT_OK) {
+            if (data != null) {
+                String name = data.getStringExtra("name");
+                String number = data.getStringExtra("number");
+                messageText = name + "\n" + number;
+                myWordModel = new Word(
+                        1, messageText,
+                        Constants.MESSAGE_TYPE_CONTACT,
+                        SharedPrefs.getUserModel().getName(), "",
+                        SharedPrefs.getUserModel().getId(),
+                        roomId,
+                        System.currentTimeMillis(),
+                        "", videoPath,
+                        ""
+                        , SharedPrefs.getUserModel().getPicUrl(), 0
+                        , "",
+                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true);
+                mWordViewModel.insert(myWordModel);
+                sendMessage(Constants.MESSAGE_TYPE_CONTACT);
+
+            }
+
+
+        }
         if (requestCode == 23) {
             if (data != null) {
                 mSelected = Matisse.obtainResult(data);
                 CompressImage compressImage = new CompressImage(this);
                 compressedUrl = compressImage.compressImage("" + mSelected.get(0));
-                MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+                myWordModel = new Word(
+                        1, "",
                         Constants.MESSAGE_TYPE_IMAGE,
+                        SharedPrefs.getUserModel().getName(), "",
                         SharedPrefs.getUserModel().getId(),
-                        roomId, System.currentTimeMillis(), false, "" + compressedUrl
-                );
-                itemList.add(messageModel);
-                adapter.setItemList(itemList);
-                recycler.scrollToPosition(itemList.size() - 1);
-
+                        roomId,
+                        System.currentTimeMillis(),
+                        "", "",
+                        compressedUrl
+                        , SharedPrefs.getUserModel().getPicUrl(), 0
+                        , "",
+                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true);
+                mWordViewModel.insert(myWordModel);
                 uploadImageToServer();
 
             }
@@ -811,54 +1015,85 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         if (requestCode == 24) {
             if (data != null) {
                 mSelected = Matisse.obtainResult(data);
-                MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
-                        Constants.MESSAGE_TYPE_VIDEO,
-                        SharedPrefs.getUserModel().getId(),
-                        roomId, System.currentTimeMillis(), false, "" + mSelected.get(0)
-                );
-                itemList.add(messageModel);
-                adapter.setItemList(itemList);
-                recycler.scrollToPosition(itemList.size() - 1);
+                String string = Long.toHexString(Double.doubleToLongBits(Math.random()));
+                videoPath = CommonUtils.getRealPathFromURI(mSelected.get(0));
 
-                uploadVideoToServer("" + CommonUtils.getRealPathFromURI(mSelected.get(0)));
+                thumbFilename = new File(Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DOWNLOADS) + "/" + string + ".jpg");
+//                generateVideoThmb(videoPath, thumbFilename);
+                myWordModel = new Word(
+                        1, "",
+                        Constants.MESSAGE_TYPE_VIDEO,
+                        SharedPrefs.getUserModel().getName(), "",
+                        SharedPrefs.getUserModel().getId(),
+                        roomId,
+                        System.currentTimeMillis(),
+                        "", videoPath,
+                        ""
+                        , SharedPrefs.getUserModel().getPicUrl(), 0
+                        , "",
+                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true);
+                mWordViewModel.insert(myWordModel);
+                uploadVideoToServer(videoPath);
+
 
             }
 
         }
-        if (requestCode == REQUEST_CODE_FILE && data != null) {
+        if (requestCode == Constant.REQUEST_CODE_PICK_FILE && data != null) {
 //            Uri Fpath = data.getData();
-            Uri uri = data.getData();
-
-            File file = new File(uri.getPath());//create path from uri
-            final String[] split = file.getPath().split(":");//split the path.
-            try {
-                String filePath = split[1];
-
-                uploadDocumentToServer(filePath);
-
-            } catch (Exception e) {
-//                CommonUtils.showToast("invalid file");
+            ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+            if (list.size() > 0) {
+                String path = list.get(0).getPath();
+                docfileName = list.get(0).getName();
+                uploadDocumentToServer(path);
             }
+
 
         }
         if (requestCode == REQUEST_CAPTURE_IMAGE) {
             CompressImage compressImage = new CompressImage(ChattingScreen.this);
             Uri abc = Uri.fromFile(new File(imageFilePath));
             compressedUrl = compressImage.compressImage("" + abc);
-            MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
-                    Constants.MESSAGE_TYPE_IMAGE,
-                    SharedPrefs.getUserModel().getId(),
-                    roomId, System.currentTimeMillis(), false, "" + compressedUrl
-            );
-            itemList.add(messageModel);
-            adapter.setItemList(itemList);
-            recycler.scrollToPosition(itemList.size() - 1);
             uploadImageToServer();
-            //don't compare the data to null, it will always come as  null because we are providing a file URI, so load with the imageFilePath we obtained before opening the cameraIntent
-//            Glide.with(this).load(imageFilePath).into(mImageView);
-            // If you are using Glide.
+
         }
     }
+
+    private void showLocationShareAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Location Alert");
+        builder.setMessage("Share location with group members? ");
+
+        // add the buttons
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                messageText = lat + "," + lon;
+                myWordModel = new Word(
+                        1, messageText,
+                        Constants.MESSAGE_TYPE_LOCATION,
+                        SharedPrefs.getUserModel().getName(), "",
+                        SharedPrefs.getUserModel().getId(),
+                        roomId,
+                        System.currentTimeMillis(),
+                        "", videoPath,
+                        ""
+                        , SharedPrefs.getUserModel().getPicUrl(), 0
+                        , "",
+                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true);
+                mWordViewModel.insert(myWordModel);
+                sendMessage(Constants.MESSAGE_TYPE_LOCATION);
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
 
     public ChattingScreen() {
 
@@ -887,7 +1122,9 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                     try {
                         liveUrl = response.body().string();
 //                        sendMessage(Constants.MESSAGE_TYPE_VIDEO);
-                        uploadVideoImageToServer(CommonUtils.getVideoPic(AppConfig.BASE_URL_Videos + liveUrl));
+
+//                        uploadVideoImageToServer();
+                        sendMessage(Constants.MESSAGE_TYPE_VIDEO);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -902,7 +1139,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-//                CommonUtils.showToast(t.getMessage());
+                CommonUtils.showToast("video: " + t.getMessage());
             }
         });
 
@@ -951,13 +1188,11 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
     }
 
-    private void uploadVideoImageToServer(Uri videoPic) {
+    private void uploadVideoImageToServer() {
 
         // create upload service client
-        File file = new File(CommonUtils.getRealPathFromURI(videoPic));
-
+        File file = new File("" + thumbFilename.getAbsolutePath());
         UserClient service = AppConfig.getRetrofit().create(UserClient.class);
-
         RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("photo", file.getName(), requestBody);
         RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
@@ -972,6 +1207,10 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                     try {
                         liveUrlVideoPic = response.body().string();
                         sendMessage(Constants.MESSAGE_TYPE_VIDEO);
+                        if (thumbFilename.exists()) {
+                            thumbFilename.delete();
+                            thumbFilename = null;
+                        }
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -986,7 +1225,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-//                CommonUtils.showToast(t.getMessage());
+                CommonUtils.showToast("pic: " + t.getMessage());
+
             }
         });
 
@@ -1036,30 +1276,28 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     }
 
     private void uploadDocumentToServer(String documetnFile) {
-        // create upload service client
-        Uri uri = Uri.fromFile(new File("" + documetnFile));
-
-        docfileName = CommonUtils.uri2filename(uri);
-//        File file = new File(documetnFile);
         File file = new File(documetnFile);
-
-
-        MessageModel messageModel = new MessageModel(itemList.size() + 1, messageText,
+        documentType = CommonUtils.getMimeType(file, this);
+        myWordModel = new Word(
+                1, "",
                 Constants.MESSAGE_TYPE_DOCUMENT,
+                SharedPrefs.getUserModel().getName(),
+                documetnFile,
                 SharedPrefs.getUserModel().getId(),
-                roomId, System.currentTimeMillis(), false, "", docfileName
-        );
-        itemList.add(messageModel);
-        adapter.setItemList(itemList);
-        recycler.scrollToPosition(itemList.size() - 1);
-
-
+                roomId,
+                System.currentTimeMillis(),
+                "", "",
+                ""
+                , SharedPrefs.getUserModel().getPicUrl(), 0
+                , docfileName + documentType,
+                object.getRoom().getCover_url(), object.getRoom().getTitle(), true);
+        mWordViewModel.insert(myWordModel);
         UserClient service = AppConfig.getRetrofit().create(UserClient.class);
 
         RequestBody requestBody = RequestBody.create(MediaType.parse("document/*"), file);
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("document", file.getName(), requestBody);
         RequestBody filename = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-        RequestBody extension = RequestBody.create(MediaType.parse("text/plain"), ".pdf");
+        RequestBody extension = RequestBody.create(MediaType.parse("text/plain"), documentType);
 
         // finally, execute the request
         Call<ResponseBody> call = service.uploadDocumentFile(fileToUpload, filename, extension);
@@ -1092,88 +1330,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     }
 //
 
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Get extra data included in the Intent
-            String message = intent.getStringExtra("message");
-            getRoomMessagesFromDB();
-        }
-    };
-
-    private void getRoomMessagesFromDB() {
-        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
-
-        JsonObject map = new JsonObject();
-        map.addProperty("api_username", AppConfig.API_USERNAME);
-        map.addProperty("api_password", AppConfig.API_PASSOWRD);
-        map.addProperty("roomId", roomId);
-        Call<AllRoomMessagesResponse> call = getResponse.allRoomMessages(map);
-        call.enqueue(new Callback<AllRoomMessagesResponse>() {
-            @Override
-            public void onResponse(Call<AllRoomMessagesResponse> call, Response<AllRoomMessagesResponse> response) {
-                if (response.code() == 200) {
-
-                    handleMessagesList(response);
-                } else {
-                    CommonUtils.showToast(response.message());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<AllRoomMessagesResponse> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void handleMessagesList(Response<AllRoomMessagesResponse> response) {
-        AllRoomMessagesResponse object = response.body();
-        if (object.getMessages() != null && object.getMessages().size() > 0) {
-            itemList.clear();
-            List<MessageModel> messagesList = object.getMessages();
-            HashMap<Integer, Integer> deletedMap = SharedPrefs.getDeletedMessagesId();
-            if (deletedMap != null) {
-                for (MessageModel model : messagesList) {
-                    if (!deletedMap.containsKey(model.getId())) {
-
-
-                        itemList.add(model);
-                    }
-
-                }
-            } else {
-                itemList = messagesList;
-            }
-
-
-            Collections.sort(itemList, new Comparator<MessageModel>() {
-                @Override
-                public int compare(MessageModel listData, MessageModel t1) {
-                    Long ob1 = listData.getTime();
-                    Long ob2 = t1.getTime();
-
-                    return ob1.compareTo(ob2);
-
-                }
-            });
-
-
-            adapter.setItemList(itemList);
-            recycler.scrollToPosition(itemList.size() - 1);
-            HashMap<Integer, List<MessageModel>> map = new HashMap<>();
-            map.put(roomId, itemList);
-            SharedPrefs.setInsideMessages(map, roomId);
-
-            HashMap<Integer, Boolean> seenMap = SharedPrefs.getLastSeenMessage(roomId);
-
-            seenMap = new HashMap<>();
-            seenMap.put(itemList.get(itemList.size() - 1).getId(), true);
-            SharedPrefs.setLastSeenMessage(seenMap, itemList.get(itemList.size() - 1).getId());
-
-
-        }
-    }
 
     private void getRoomDataFromDb() {
         UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
@@ -1190,6 +1346,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 if (response.code() == 200) {
 
                     object = response.body();
+                    markAsRead();
+
                     try {
                         Glide.with(ChattingScreen.this).load(AppConfig.BASE_URL_Image + object.getRoom().getCover_url()).into(image);
 
@@ -1248,7 +1406,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
         } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_DOCUMENT)) {
             map.addProperty("documentUrl", liveUrl);
-            map.addProperty("filename", docfileName);
+            map.addProperty("filename", docfileName + documentType);
 
 
         }
@@ -1264,45 +1422,34 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             public void onResponse(Call<AllRoomMessagesResponse> call, Response<AllRoomMessagesResponse> response) {
                 if (response.code() == 200) {
                     message.setText("");
-                    handleMessagesList(response);
-//                    NewMessageResponse object = response.body();
-//                    if (object.getMessages() != null && object.getMessages().size() > 0) {
-//                        itemList = object.getMessages();
-//                        Collections.sort(itemList, new Comparator<MessageModel>() {
-//                            @Override
-//                            public int compare(MessageModel listData, MessageModel t1) {
-//                                Long ob1 = listData.getTime();
-//                                Long ob2 = t1.getTime();
-//
-//                                return ob1.compareTo(ob2);
-//
-//                            }
-//                        });
-//                        adapter.setItemList(itemList);
-//                        recycler.scrollToPosition(itemList.size() - 1);
-//
-//
-//                    }
-                    sendNotification(messageType);
+//                    handleMessagesList(response);
+//                    myWordModel = response.body().getMessageModel();
+                    myWordModel.setId(itemList.get(itemList.size() - 1).getId());
+                    myWordModel.setServerId(response.body().getMessageModel().getId());
+                    myWordModel.setGroupPicUrl(object.getRoom().getCover_url());
+                    myWordModel.setRoomName(object.getRoom().getTitle());
+                    WordRepository mRepository = new WordRepository(ApplicationClass.getInstance());
+                    mRepository.updateWord(myWordModel);
+//                    mWordViewModel.updateWord(myWordModel);
+                    sendNotification(messageType, myWordModel);
                 }
             }
 
             @Override
             public void onFailure(Call<AllRoomMessagesResponse> call, Throwable t) {
 
-//                CommonUtils.showToast(t.getMessage());
 
             }
         });
 
     }
 
-    private void sendNotification(String type) {
+    private void sendNotification(String type, Word msgModel) {
         for (UserModel user : particiapantsList) {
             if (!user.getId().equals(SharedPrefs.getUserModel().getId())) {
 
                 NotificationAsync notificationAsync = new NotificationAsync(ChattingScreen.this);
-                String NotificationTitle = "New message ";
+                String NotificationTitle = "New message in " + object.getRoom().getTitle();
                 String NotificationMessage = "";
                 if (type.equals(Constants.MESSAGE_TYPE_TEXT)) {
                     NotificationMessage = SharedPrefs.getUserModel().getName() + ": " + messageText;
@@ -1325,12 +1472,14 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 } else if (type.equals(Constants.MESSAGE_TYPE_POST)) {
                     NotificationMessage = SharedPrefs.getUserModel().getName() + ":  \uD83D\uDCF7 Post";
                 }
+                Gson gson = new Gson();
+
                 notificationAsync.execute(
                         "ali",
                         user.getFcmKey(),
                         NotificationTitle,
                         NotificationMessage,
-                        "chat", "" + roomId
+                        "chat", "" + roomId, gson.toJson(msgModel)
                 );
             }
         }
@@ -1342,7 +1491,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
-        LocalBroadcastManager.getInstance(ChattingScreen.this).unregisterReceiver(mMessageReceiver);
 
     }
 
@@ -1353,6 +1501,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION,
 
 
         };
@@ -1385,5 +1534,13 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     @Override
     public void onFailure() {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(ChattingScreen.this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
+        finish();
     }
 }

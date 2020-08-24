@@ -9,6 +9,7 @@ public class Constants {
 
     public static String MESSAGE_TYPE_IMAGE="IMAGE";
     public static String MESSAGE_TYPE_TEXT="TEXT";
+    public static String MESSAGE_TYPE_BUBBLE="BUBBLE";
     public static String MESSAGE_TYPE_AUDIO="AUDIO";
     public static String MESSAGE_TYPE_VIDEO="VIDEO";
     public static String MESSAGE_TYPE_DELETED="DELETED";
@@ -31,10 +32,12 @@ public class Constants {
     public static int FORWARD_POST = 0;
     public static String FORWARD_PIC_URL = "";
     public static String POST_MESSAGE = "";
+    public static String VIDEO_PATH = "";
     public static boolean SAVED_POST = false;
     public static int STORY_POSITION = 0;
 
     public static String NOTIFICATION_COMMENT = "comment";
+    public static String TIMEZONE = "";
     public static String NOTIFICATION_CHAT = "chat";
     public static boolean IS_HOME_LOADED = false;
     public static boolean IS_QR = false;

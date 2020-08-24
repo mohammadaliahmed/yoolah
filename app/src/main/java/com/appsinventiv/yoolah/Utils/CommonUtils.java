@@ -1,6 +1,7 @@
 package com.appsinventiv.yoolah.Utils;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -8,22 +9,35 @@ import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.media.MediaMetadataRetriever;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.provider.Settings;
 import android.text.format.DateFormat;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.appsinventiv.yoolah.Database.Word;
+import com.appsinventiv.yoolah.Database.WordRepository;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by AliAh on 14/05/2018.
@@ -115,13 +129,57 @@ public class CommonUtils {
         }
     }
 
+
+    public static void getTimeZone() {
+        Calendar cal = Calendar.getInstance();
+        long milliDiff = cal.get(Calendar.ZONE_OFFSET);
+// Got local offset, now loop through available timezone id(s).
+        String[] ids = TimeZone.getAvailableIDs();
+        String name = null;
+        for (String id : ids) {
+            TimeZone tz = TimeZone.getTimeZone(id);
+            if (tz.getRawOffset() == milliDiff) {
+                // Found a match.
+                name = id;
+                break;
+            }
+        }
+        Constants.TIMEZONE = name;
+    }
+
+    public static String getMimeType(File file, Context context) {
+        String parts[] = file.toString().split("\\.");
+        String extension = parts[parts.length - 1];
+        String type = null;
+
+        return "." + extension;
+    }
+
+//    public static String getFormattedTimeFromCompleteTime(long date) {
+////        Calendar c = Calendar.getInstance();
+////        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm aa", Locale.ENGLISH);
+////        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+////        c.getTime();
+////        return sdf.format(date);
+//        Calendar mCalendar = Calendar.getInstance();
+//        TimeZone mTimeZone = mCalendar.getTimeZone();
+//        int mGMTOffset = mTimeZone.getRawOffset();
+//        SimpleDateFormat df = new SimpleDateFormat("hh:ss aa MM/dd/yyyy");
+//        df.setTimeZone(TimeZone.getTimeZone("GMT+" + TimeUnit.HOURS.convert(mGMTOffset, TimeUnit.MILLISECONDS)));
+//        String result = df.format(date);
+//        return result;
+//    }
+
     public static String getFormattedDate(long smsTimeInMilis) {
+
         Calendar smsTime = Calendar.getInstance();
+
         smsTime.setTimeInMillis(smsTimeInMilis);
 
         Calendar now = Calendar.getInstance();
 
-        final String timeFormatString = "h:mm aa";
+
+        final String timeFormatString = "HH:mm";
         final String dateTimeFormatString = "dd MMM ";
         final long HOURS = 60 * 60 * 60;
         if (now.get(Calendar.DATE) == smsTime.get(Calendar.DATE)) {
@@ -131,7 +189,7 @@ public class CommonUtils {
         } else if (now.get(Calendar.YEAR) == smsTime.get(Calendar.YEAR)) {
             return DateFormat.format(dateTimeFormatString, smsTime).toString();
         } else {
-            return DateFormat.format("dd MMM , h:mm aa", smsTime).toString();
+            return DateFormat.format("dd MMM , HH:mm", smsTime).toString();
         }
     }
 
@@ -140,7 +198,12 @@ public class CommonUtils {
         smsTime.setTimeInMillis(smsTimeInMilis);
 
 
-        return DateFormat.format("dd-MM-yyyy", smsTime).toString();
+        return DateFormat.format("dd MMM yyyy", smsTime).toString();
+
+    }
+
+    public static void insertWord(Word word, WordRepository mRepository) {
+        mRepository.insert(word);
 
     }
 
@@ -199,7 +262,7 @@ public class CommonUtils {
 
         Calendar now = Calendar.getInstance();
 
-        final String timeFormatString = "h:mm aa";
+        final String timeFormatString = "h:mm";
         final String dateTimeFormatString = "dd MMM ";
         final long HOURS = 60 * 60 * 60;
         if (now.get(Calendar.DATE) == smsTime.get(Calendar.DATE)) {
@@ -209,7 +272,7 @@ public class CommonUtils {
         } else if (now.get(Calendar.YEAR) == smsTime.get(Calendar.YEAR)) {
             return DateFormat.format(dateTimeFormatString, smsTime).toString();
         } else {
-            return DateFormat.format("dd MMM , h:mm aa", smsTime).toString();
+            return DateFormat.format("dd MMM , h:mm", smsTime).toString();
         }
     }
 
@@ -226,7 +289,7 @@ public class CommonUtils {
         Calendar smsTime = Calendar.getInstance();
         smsTime.setTimeInMillis(smsTimeInMilis);
 
-        return DateFormat.format("h:mm aa", smsTime).toString();
+        return DateFormat.format("h:mm ", smsTime).toString();
 
     }
 
@@ -268,6 +331,14 @@ public class CommonUtils {
             }
         }
         return ret;
+    }
+
+    public static String getUniqueId() {
+//        String android_id = UUID.randomUUID().toString();
+
+        @SuppressLint("HardwareIds") String android_id = android.provider.Settings.Secure.getString(ApplicationClass.getInstance().getApplicationContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        return android_id;
     }
 
 }

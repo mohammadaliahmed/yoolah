@@ -1,7 +1,9 @@
 package com.appsinventiv.yoolah.Activites.UserManagement;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -39,13 +41,13 @@ public class LoginUser extends AppCompatActivity {
     ImageView scan;
     EditText groupId;
     ImageView go;
+    public static LoginUser loginUserActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_user);
-
-
+        loginUserActivity = this;
         groupId = findViewById(R.id.groupId);
         go = findViewById(R.id.go);
         email = findViewById(R.id.email);
@@ -71,7 +73,6 @@ public class LoginUser extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(LoginUser.this, QrScanner.class);
                 startActivity(i);
-                finish();
             }
         });
 
@@ -81,7 +82,7 @@ public class LoginUser extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(LoginUser.this, LoginActivity.class);
+                Intent i = new Intent(LoginUser.this, RecoverLogin.class);
                 startActivity(i);
 
             }
@@ -103,6 +104,8 @@ public class LoginUser extends AppCompatActivity {
                 wholeLayout.setVisibility(View.GONE);
 
                 if (response.code() == 200) {
+
+
                     RoomModel object = response.body().getRoom();
                     if (SharedPrefs.getUserModel() != null) {
                         Intent i = new Intent(LoginUser.this, AddUserToRoom.class);

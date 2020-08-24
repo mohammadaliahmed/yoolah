@@ -1,6 +1,7 @@
 
 package com.appsinventiv.yoolah.NetworkResponses;
 
+import com.appsinventiv.yoolah.Database.Word;
 import com.appsinventiv.yoolah.Models.MessageModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -18,6 +19,9 @@ public class AllRoomMessagesResponse {
     @SerializedName("messages")
     @Expose
     private List<MessageModel> messages = null;
+    @SerializedName("messageModel")
+    @Expose
+    private Word messageModel = null;
 
     public Integer getCode() {
         return code;
@@ -41,5 +45,13 @@ public class AllRoomMessagesResponse {
 
     public void setMessages(List<MessageModel> messages) {
         this.messages = messages;
+    }
+
+    public Word getMessageModel() {
+        return messageModel;
+    }
+
+    public void setMessageModel(Word messageModel) {
+        this.messageModel = messageModel;
     }
 }

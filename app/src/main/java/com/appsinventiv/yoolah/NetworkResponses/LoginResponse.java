@@ -1,8 +1,11 @@
 package com.appsinventiv.yoolah.NetworkResponses;
 
+import com.appsinventiv.yoolah.Models.RoomModel;
 import com.appsinventiv.yoolah.Models.UserModel;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
 
 public class LoginResponse {
 
@@ -15,6 +18,19 @@ public class LoginResponse {
     @SerializedName("user")
     @Expose
     private UserModel user;
+
+    @SerializedName("rooms")
+    @Expose
+    private List<RoomModel> rooms = null;
+
+
+    public List<RoomModel> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<RoomModel> rooms) {
+        this.rooms = rooms;
+    }
 
     public Integer getCode() {
         return code;

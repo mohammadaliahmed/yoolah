@@ -18,14 +18,27 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.appsinventiv.yoolah.Activites.UserManagement.LoginActivity;
+import com.appsinventiv.yoolah.Models.UserModel;
 import com.appsinventiv.yoolah.NetworkResponses.AllRoomMessagesResponse;
+import com.appsinventiv.yoolah.NetworkResponses.RoomInfoResponse;
 import com.appsinventiv.yoolah.R;
 import com.appsinventiv.yoolah.Utils.AppConfig;
 import com.appsinventiv.yoolah.Utils.CommonUtils;
+import com.appsinventiv.yoolah.Utils.Constants;
+import com.appsinventiv.yoolah.Utils.NotificationAsync;
+import com.appsinventiv.yoolah.Utils.NotificationObserver;
 import com.appsinventiv.yoolah.Utils.SharedPrefs;
 import com.appsinventiv.yoolah.Utils.UserClient;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.gson.JsonObject;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,7 +47,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CreatePollActivity extends AppCompatActivity {
+public class CreatePollActivity extends AppCompatActivity implements NotificationObserver {
 
     EditText title, question, option1, option2, option3, option4;
     Button submit;
@@ -45,6 +58,8 @@ public class CreatePollActivity extends AppCompatActivity {
     ImageView deleteOption4, deleteOption3;
     LinearLayout option3Layout, option4Layout;
     int counter = 0;
+    private List<UserModel> particiapantsList = new ArrayList<>();
+    private String pollId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +89,7 @@ public class CreatePollActivity extends AppCompatActivity {
         submit = findViewById(R.id.submit);
         add = findViewById(R.id.add);
 
-
+        getRoomInfo();
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -173,7 +188,17 @@ public class CreatePollActivity extends AppCompatActivity {
                 wholeLayout.setVisibility(View.GONE);
                 if (response.code() == 200) {
                     CommonUtils.showToast("Poll Submitted");
-                    finish();
+                    JSONObject jObjError = null;
+                    try {
+                        jObjError = new JSONObject(response.body().string());
+                        pollId = jObjError.getString("pollId");
+                        sendNotification();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+//                    finish();
                 } else {
                     CommonUtils.showToast(response.message());
                 }
@@ -187,6 +212,57 @@ public class CreatePollActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void sendNotification() {
+        for (UserModel user : particiapantsList) {
+            if (!user.getId().equals(SharedPrefs.getUserModel().getId())) {
+                NotificationAsync notificationAsync = new NotificationAsync(CreatePollActivity.this);
+                String NotificationTitle = "Admin Created new Poll ";
+                String NotificationMessage = "Please fill the poll";
+                notificationAsync.execute(
+                        "ali",
+                        user.getFcmKey(),
+                        NotificationTitle,
+                        NotificationMessage,
+                        "poll", "" + pollId,""
+                );
+            }
+        }
+        finish();
+
+    }
+
+    private void getRoomInfo() {
+        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
+        JsonObject map = new JsonObject();
+        map.addProperty("api_username", AppConfig.API_USERNAME);
+        map.addProperty("api_password", AppConfig.API_PASSOWRD);
+        map.addProperty("roomId", roomId);
+        map.addProperty("userId", SharedPrefs.getUserModel().getId());
+        Call<RoomInfoResponse> call = getResponse.getRoomInfo(map);
+        call.enqueue(new Callback<RoomInfoResponse>() {
+            @Override
+            public void onResponse(Call<RoomInfoResponse> call, Response<RoomInfoResponse> response) {
+                if (response.code() == 200) {
+                    RoomInfoResponse object = response.body();
+                    if (object.getRoom() != null) {
+                        if (object.getUsers() != null && object.getUsers().size() > 0) {
+                            particiapantsList = object.getUsers();
+                        }
+
+
+                    }
+                } else {
+                    CommonUtils.showToast(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RoomInfoResponse> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override
@@ -206,4 +282,13 @@ public class CreatePollActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onSuccess(String chatId) {
+
+    }
+
+    @Override
+    public void onFailure() {
+
+    }
 }

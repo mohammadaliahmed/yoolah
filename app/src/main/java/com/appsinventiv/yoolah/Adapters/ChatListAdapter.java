@@ -3,6 +3,7 @@ package com.appsinventiv.yoolah.Adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,6 +84,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         viewHolder.time.setText(CommonUtils.getFormattedDate(userModel.getTime()));
         if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_BUBBLE)) {
+            viewHolder.message.setText(userModel.getMessageText());
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + "\uD83D\uDCF7  Image");
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
@@ -105,7 +108,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             }
         });
         Glide.with(context).load(AppConfig.BASE_URL_Image + userModel.getCoverUrl()).placeholder(R.drawable.team).into(viewHolder.picture);
-
 
         HashMap<Integer, Boolean> map = SharedPrefs.getLastSeenMessage(userModel.getId());
         if (map != null && map.size() > 0) {

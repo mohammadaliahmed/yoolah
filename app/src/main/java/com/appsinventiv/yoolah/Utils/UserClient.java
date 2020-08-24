@@ -4,6 +4,7 @@ package com.appsinventiv.yoolah.Utils;
 import com.appsinventiv.yoolah.NetworkResponses.AllRoomMessagesResponse;
 import com.appsinventiv.yoolah.NetworkResponses.GetPollResponse;
 import com.appsinventiv.yoolah.NetworkResponses.LoginResponse;
+import com.appsinventiv.yoolah.NetworkResponses.MessageInfoResponse;
 import com.appsinventiv.yoolah.NetworkResponses.NewMessageResponse;
 import com.appsinventiv.yoolah.NetworkResponses.PollAnswersResponse;
 import com.appsinventiv.yoolah.NetworkResponses.RoomDetailsResponse;
@@ -49,6 +50,20 @@ public interface UserClient {
     @Headers("Content-Type: application/json")
     @POST("api/user/register")
     Call<SignupResponse> register(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/loginWithId")
+    Call<LoginResponse> loginWithId(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/loginAdmin")
+    Call<LoginResponse> loginAdmin(
             @Body JsonObject jsonObject
 
     );
@@ -119,6 +134,27 @@ public interface UserClient {
     );
 
     @Headers("Content-Type: application/json")
+    @POST("api/room/inviteUserFromApp")
+    Call<ResponseBody> inviteUserFromApp(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/message/markAsReadOnServer")
+    Call<ResponseBody> markAsReadOnServer(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/message/getReadMessages")
+    Call<MessageInfoResponse> getReadMessages(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
     @POST("api/message/deleteMessageFroAll")
     Call<AllRoomMessagesResponse> deleteMessageFroAll(
             @Body JsonObject jsonObject
@@ -170,6 +206,13 @@ public interface UserClient {
     @Headers("Content-Type: application/json")
     @POST("api/room/addUserToRoom")
     Call<RoomInfoResponse> addUserToRoom(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/room/checkQrStatus")
+    Call<RoomInfoResponse> checkQrStatus(
             @Body JsonObject jsonObject
 
     );

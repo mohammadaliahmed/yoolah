@@ -122,7 +122,47 @@
                         android:layout_height="50dp"
                         android:layout_centerInParent="true"
                         android:src="@drawable/ic_play_black" />
+
+                    <ProgressBar
+                        android:id="@+id/videoProgress"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentBottom="true"
+                        android:indeterminateTint="@color/colorRed" />
                 </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/contactLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="5dp"
+                    android:background="#fff"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/contact" />
+
+                    <TextView
+                        android:id="@+id/contactText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="20dp"
+                        android:autoLink="web"
+                        android:maxLines="2"
+                        android:text="jkkjkjhkjh\nsfsds"
+                        android:textColor="#000"
+                        android:textSize="13sp"
+                        android:visibility="visible" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/messageText"
@@ -130,10 +170,22 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
-
+                    android:autoLink="web"
                     android:text=""
                     android:textColor="#fff"
                     android:textSize="13sp"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/location"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:layout_margin="5dp"
+
+                    android:clickable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_location"
                     android:visibility="gone" />
 
                 <ImageView

@@ -66,16 +66,14 @@ public class MyProfile extends AppCompatActivity {
     private static final int REQUEST_CODE_CHOOSE = 23;
 
     RelativeLayout wholeLayout;
-    EditText name, email, phone;
-    RadioButton male, female;
+    EditText name;
     Button update, logout;
-    String gender;
     CircleImageView image;
     private List<Uri> mSelected = new ArrayList<>();
     private String compressedUrl;
     private String liveUrl;
     private UserModel model;
-    boolean ultaAccount=false;
+    boolean ultaAccount = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,10 +92,7 @@ public class MyProfile extends AppCompatActivity {
         logout = findViewById(R.id.logout);
         update = findViewById(R.id.update);
         name = findViewById(R.id.name);
-        email = findViewById(R.id.email);
-        phone = findViewById(R.id.phone);
-        male = findViewById(R.id.male);
-        female = findViewById(R.id.female);
+
         image = findViewById(R.id.image);
 
         logout.setOnClickListener(new View.OnClickListener() {
@@ -134,27 +129,6 @@ public class MyProfile extends AppCompatActivity {
         });
 
 
-        male.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (compoundButton.isPressed()) {
-                    if (b) {
-                        gender = "Male";
-                    }
-                }
-            }
-        });
-        female.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (compoundButton.isPressed()) {
-                    if (b) {
-                        gender = "Female";
-                    }
-                }
-            }
-        });
-
         getDataFromServer();
 
 
@@ -178,32 +152,12 @@ public class MyProfile extends AppCompatActivity {
                     if (model != null) {
                         SharedPrefs.setUserModel(model);
                         name.setText(model.getName());
-                        if (model.getEmail().startsWith("some")) {
-                            email.setEnabled(true);
-                            ultaAccount=true;
-                        } else {
-                            email.setText(model.getEmail());
-                            email.setEnabled(false);
 
-                        }
-                        phone.setText(model.getPhone());
                         SharedPrefs.setUserModel(model);
                         Glide.with(MyProfile.this).load(AppConfig.BASE_URL_Image + model.getThumbnailUrl())
                                 .placeholder(R.drawable.ic_profile_plc).into(image);
 
-                        if (model.getGender() != null) {
-                            if (model.getGender().equalsIgnoreCase("male")) {
-                                male.setChecked(true);
-                                gender = "Male";
-                            } else if (model.getGender().equalsIgnoreCase("female")) {
-                                female.setChecked(true);
-                                gender = "Female";
 
-                            }
-                        } else {
-                            male.setChecked(true);
-                            gender = "Male";
-                        }
                     }
 
                 } else {
@@ -321,12 +275,8 @@ public class MyProfile extends AppCompatActivity {
         map.addProperty("api_username", AppConfig.API_USERNAME);
         map.addProperty("api_password", AppConfig.API_PASSOWRD);
         map.addProperty("id", SharedPrefs.getUserModel().getId());
-        if(ultaAccount) {
-            map.addProperty("email", email.getText().toString());
-        }
         map.addProperty("name", name.getText().toString());
-        map.addProperty("gender", gender);
-        map.addProperty("phone", phone.getText().toString());
+
         if (mSelected.size() > 0) {
             map.addProperty("thumbnailUrl", liveUrl);
         } else {

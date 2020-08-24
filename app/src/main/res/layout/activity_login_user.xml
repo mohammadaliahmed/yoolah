@@ -53,7 +53,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Group Id"
-                    android:inputType="number" />
+                    android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageView
@@ -85,6 +85,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="Scan QR" />
+
+
     </LinearLayout>
 
     <TextView
@@ -106,16 +108,16 @@
         android:layout_marginTop="20dp"
         android:background="@drawable/btn_bg"
         android:inputType="number"
-        android:text="Login"
+        android:text="Recover Login"
         android:textColor="#fff" />
 
     <RelativeLayout
         android:id="@+id/wholeLayout"
         android:layout_width="match_parent"
-        android:visibility="gone"
         android:layout_height="match_parent"
         android:alpha="0.8"
-        android:background="#fff">
+        android:background="#fff"
+        android:visibility="gone">
 
         <ProgressBar
             android:layout_width="wrap_content"

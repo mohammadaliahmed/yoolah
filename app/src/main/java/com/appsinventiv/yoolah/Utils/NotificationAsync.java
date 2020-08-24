@@ -48,6 +48,7 @@ public class NotificationAsync extends AsyncTask<String, String, String> {
         String Message = params[3];
         String NotificationType = params[4];
         String Id = params[5];
+        String messageJson = params[6];
 
 
         try {
@@ -74,6 +75,7 @@ public class NotificationAsync extends AsyncTask<String, String, String> {
             jsonObject.put("Message", Message);
             jsonObject.put("Type", NotificationType);
             jsonObject.put("Id", Id);
+            jsonObject.put("messageJson", messageJson);
 
 
             json.put("data", jsonObject);

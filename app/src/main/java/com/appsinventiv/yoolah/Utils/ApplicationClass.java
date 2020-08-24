@@ -4,7 +4,10 @@ import android.app.Application;
 import android.content.Context;
 import android.os.StrictMode;
 
+import com.appsinventiv.yoolah.Database.WordViewModel;
 import com.google.firebase.FirebaseApp;
+
+import androidx.lifecycle.ViewModelProviders;
 
 
 /**
@@ -30,6 +33,8 @@ public class ApplicationClass extends Application {
         instance = this;
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
+
+
     }
 
 

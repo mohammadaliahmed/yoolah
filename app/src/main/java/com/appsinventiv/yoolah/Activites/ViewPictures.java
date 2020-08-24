@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.ImageView;
 
 import com.appsinventiv.yoolah.R;
+import com.appsinventiv.yoolah.Utils.AppConfig;
 import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
 import com.bumptech.glide.Glide;
 
@@ -19,8 +20,14 @@ public class ViewPictures extends AppCompatActivity {
         Intent i = getIntent();
         String url = i.getStringExtra("url");
         ImageView img = findViewById(R.id.img);
+        if (url.contains("/storage")) {
+            Glide.with(this).load(url).into(img);
 
-        Glide.with(this).load(url).into(img);
+
+        } else {
+            Glide.with(this).load(AppConfig.BASE_URL_Image + url).into(img);
+
+        }
         img.setOnTouchListener(new ImageMatrixTouchHandler(this));
     }
 }

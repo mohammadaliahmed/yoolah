@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bubbleText"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="100dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginRight="100dp"
+    android:background="@drawable/yellow_bg"
+    android:gravity="center"
+    android:padding="3dp"
+    android:text="Bubble"
+    android:textColor="#fff"
+    android:textSize="12sp"
+    android:visibility="visible">
+
+</TextView>

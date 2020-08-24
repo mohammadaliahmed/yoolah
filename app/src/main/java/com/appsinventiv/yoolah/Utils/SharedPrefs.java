@@ -3,6 +3,8 @@ package com.appsinventiv.yoolah.Utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.appsinventiv.yoolah.Database.WordRepository;
+import com.appsinventiv.yoolah.Database.WordViewModel;
 import com.appsinventiv.yoolah.Models.MessageModel;
 import com.appsinventiv.yoolah.Models.UserMessages;
 import com.appsinventiv.yoolah.Models.UserModel;
@@ -12,6 +14,8 @@ import com.google.gson.reflect.TypeToken;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -126,18 +130,18 @@ public class SharedPrefs {
         return retMap;
     }
 
-    public static void setLastSeenMessage(HashMap<Integer, Boolean> itemList,int roomId) {
+    public static void setLastSeenMessage(HashMap<Integer, Boolean> itemList, int roomId) {
 
         Gson gson = new Gson();
         String json = gson.toJson(itemList);
-        preferenceSetter("setLastSeenMessage"+roomId, json);
+        preferenceSetter("setLastSeenMessage" + roomId, json);
     }
 
     public static HashMap<Integer, Boolean> getLastSeenMessage(int roomId) {
         Gson gson = new Gson();
 
         HashMap<Integer, Boolean> retMap = new Gson().fromJson(
-                preferenceGetter("setLastSeenMessage"+roomId), new TypeToken<HashMap<Integer, Boolean>>() {
+                preferenceGetter("setLastSeenMessage" + roomId), new TypeToken<HashMap<Integer, Boolean>>() {
                 }.getType()
         );
 
@@ -176,6 +180,14 @@ public class SharedPrefs {
 
     public static String getToken() {
         return preferenceGetter("token");
+    }
+
+    public static void setLastDate(String token, Integer roomId) {
+        preferenceSetter(roomId + "setLastDate", token);
+    }
+
+    public static String getLastDate(Integer roomId) {
+        return preferenceGetter(roomId + "setLastDate");
     }
 
     public static void setRoomId(String token) {
@@ -264,6 +276,8 @@ public class SharedPrefs {
 
 
     public static void logout() {
+        WordRepository mRepository = new WordRepository(ApplicationClass.getInstance());
+        mRepository.deleteAll();
         SharedPreferences pref = ApplicationClass.getInstance().getApplicationContext().getSharedPreferences("user", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();

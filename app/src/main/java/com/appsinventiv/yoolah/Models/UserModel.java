@@ -42,6 +42,9 @@ public class UserModel {
     @SerializedName("phone")
     @Expose
     private String phone;
+    @SerializedName("randomcode")
+    @Expose
+    private String randomcode;
     @SerializedName("time")
     @Expose
     private long time;
@@ -56,6 +59,14 @@ public class UserModel {
     @SerializedName("friends")
     @Expose
     private List<Integer> friendsList;
+
+    public String getRandomcode() {
+        return randomcode;
+    }
+
+    public void setRandomcode(String randomcode) {
+        this.randomcode = randomcode;
+    }
 
     public long getTime() {
         return time;
