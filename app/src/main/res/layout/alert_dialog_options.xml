@@ -45,9 +45,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Group Id"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
-
+            <ProgressBar
+                android:id="@+id/progress"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:visibility="invisible" />
 
             <Button
                 android:id="@+id/enter"
@@ -59,6 +65,7 @@
                 android:inputType="text"
                 android:text="Enter"
                 android:textColor="#fff" />
+
 
         </LinearLayout>
 

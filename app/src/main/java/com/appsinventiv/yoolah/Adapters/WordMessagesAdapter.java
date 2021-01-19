@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.appsinventiv.yoolah.Activites.ChattingScreen;
 import com.appsinventiv.yoolah.Activites.PlayVideo;
 import com.appsinventiv.yoolah.Activites.ViewPictures;
 import com.appsinventiv.yoolah.Database.Word;
@@ -35,6 +36,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapter.ViewHolder> implements Handler.Callback {
@@ -132,6 +134,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_CONTACT)) {
@@ -145,6 +148,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
 
                 viewHolder.location.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
@@ -158,6 +162,35 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.deletedLayout.setVisibility(View.GONE);
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+
+
+            } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_REPLY)) {
+                viewHolder.image.setVisibility(View.GONE);
+                viewHolder.messageText.setVisibility(View.VISIBLE);
+                viewHolder.oldMessageLayout.setVisibility(View.VISIBLE);
+                viewHolder.oldMessageText.setVisibility(View.VISIBLE);
+                viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.document.setVisibility(View.GONE);
+                viewHolder.messageText.setText(model.getMessageText());
+
+                viewHolder.audio.setVisibility(View.GONE);
+                viewHolder.deletedLayout.setVisibility(View.GONE);
+                viewHolder.videoLayout.setVisibility(View.GONE);
+                viewHolder.location.setVisibility(View.GONE);
+
+                for (int i = 0; i < itemList.size(); i++) {
+                    if (itemList.get(i).getServerId().equals(model.getOldId())) {
+                        if (itemList.get(i).getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_IMAGE)) {
+                            viewHolder.oldMessageText.setText(itemList.get(i).getMessageByName() + ":\nPhoto");
+                            viewHolder.oldMessageImage.setVisibility(View.VISIBLE);
+                            Glide.with(context).load(AppConfig.BASE_URL_Image + itemList.get(i).getImageUrl()).into(viewHolder.oldMessageImage);
+                        } else {
+                            viewHolder.oldMessageImage.setVisibility(View.GONE);
+                            viewHolder.oldMessageText.setText(itemList.get(i).getMessageByName() + ":\n" + itemList.get(i).getMessageText());
+                        }
+                    }
+                }
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_LOCATION)) {
@@ -170,6 +203,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.filename.setText(model.getFilename());
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
@@ -182,6 +216,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
@@ -196,6 +231,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_VIDEO)) {
@@ -222,6 +258,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.deletedLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
@@ -245,6 +282,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 }
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             } else {
@@ -258,13 +296,14 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
 
 
             }
 
-
-            Glide.with(context).load(AppConfig.BASE_URL_Image + model.getMessageByPicUrl()).placeholder(R.drawable.ic_profile_plc).into(viewHolder.userImage);
-
+            if (ChattingScreen.participantsMap.size() > 0) {
+                Glide.with(context).load(AppConfig.BASE_URL_Image + ChattingScreen.participantsMap.get(model.getMessageById()).getThumbnailUrl()).placeholder(R.drawable.ic_profile_plc).into(viewHolder.userImage);
+            }
             viewHolder.name.setText(model.getMessageByName());
 
             viewHolder.time.setText(CommonUtils.getFormattedDate(model.getTime()));
@@ -304,6 +343,15 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                     }
                 }
             });
+            viewHolder.oldMessageText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (model.getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_REPLY)) {
+                        callback.onReplyMessageClick(model);
+                    }
+                }
+            });
+
             viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -553,10 +601,10 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView messageText, time, name, audioTime;
-        ImageView image, playPause, location;
+        ImageView image, playPause, location, oldMessageImage;
         CircleImageView userImage;
         SeekBar seekBar;
-        RelativeLayout audio;
+        RelativeLayout audio, oldMessageLayout;
         LinearLayout deletedLayout;
         TextView filename;
         LinearLayout document;
@@ -565,7 +613,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
         TextView bubbleText;
         ProgressBar videoProgress;
         LinearLayout contactLayout;
-        TextView contactText;
+        TextView contactText, oldMessageText;
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -584,12 +632,15 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
             playPause = itemView.findViewById(R.id.playPause);
             seekBar = itemView.findViewById(R.id.seek);
             playVideo = itemView.findViewById(R.id.playVideo);
+            oldMessageText = itemView.findViewById(R.id.oldMessageText);
             audioTime = itemView.findViewById(R.id.audioTime);
             bubbleText = itemView.findViewById(R.id.bubbleText);
             videoProgress = itemView.findViewById(R.id.videoProgress);
             location = itemView.findViewById(R.id.location);
             contactLayout = itemView.findViewById(R.id.contactLayout);
             contactText = itemView.findViewById(R.id.contactText);
+            oldMessageLayout = itemView.findViewById(R.id.oldMessageLayout);
+            oldMessageImage = itemView.findViewById(R.id.oldMessageImage);
 
 
         }
@@ -599,6 +650,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
         public void onDelete(Word messageModel, int position);
 
         public void onUpdateMessage(Word messageModel);
+
+        public void onReplyMessageClick(Word messageModel);
     }
 
 

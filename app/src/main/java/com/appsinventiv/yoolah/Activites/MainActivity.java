@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,6 +31,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.appsinventiv.yoolah.Activites.UserManagement.LoginActivity;
@@ -45,6 +47,7 @@ import com.appsinventiv.yoolah.Models.MessageModel;
 import com.appsinventiv.yoolah.Models.RoomModel;
 import com.appsinventiv.yoolah.Models.UserMessages;
 import com.appsinventiv.yoolah.Models.UserModel;
+import com.appsinventiv.yoolah.NetworkResponses.ApiResponse;
 import com.appsinventiv.yoolah.NetworkResponses.LoginResponse;
 import com.appsinventiv.yoolah.NetworkResponses.RoomDetailsResponse;
 import com.appsinventiv.yoolah.NetworkResponses.UserMessagesResponse;
@@ -77,17 +80,25 @@ public class MainActivity extends AppCompatActivity {
 
     TextView complete;
     private WordViewModel mWordViewModel;
+    TextView servertype;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        servertype=findViewById(R.id.servertype);
+        if(AppConfig.BASE_URL.contains("com")){
+            servertype.setVisibility(View.GONE);
+        }else{
+            servertype.setVisibility(View.VISIBLE);
+        }
         mWordViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
         mWordViewModel.getUserWords().observe(this, new Observer<List<Word>>() {
             @Override
             public void onChanged(@Nullable List<Word> words) {
                 adapter.setItemList(words);
+                getRoomsFromServer();
 
             }
 
@@ -150,6 +161,38 @@ public class MainActivity extends AppCompatActivity {
 //        getDataFromServer();
     }
 
+    private void getRoomsFromServer() {
+
+        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
+//
+        JsonObject map = new JsonObject();
+        map.addProperty("api_username", AppConfig.API_USERNAME);
+        map.addProperty("api_password", AppConfig.API_PASSOWRD);
+        map.addProperty("id", SharedPrefs.getUserModel().getId());
+        Call<ApiResponse> call = getResponse.roomList(map);
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getRooms() != null && response.body().getRooms().size() > 0) {
+                        HashMap<Integer, RoomModel> map1 = new HashMap<>();
+                        for (RoomModel roomModel : response.body().getRooms()) {
+                            map1.put(roomModel.getId(), roomModel);
+                        }
+                        SharedPrefs.setRoomDetails(map1);
+                        adapter.notifyDataSetChanged();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+//                CommonUtils.showToast(t.getMessage());
+            }
+        });
+    }
+
     private void updateFcmKey(String token) {
         UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
 
@@ -186,11 +229,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (SharedPrefs.getUserModel().getEmail().startsWith("some")) {
-            complete.setVisibility(View.VISIBLE);
-        } else {
-            complete.setVisibility(View.GONE);
+        if (SharedPrefs.getUserModel() != null) {
+            if (SharedPrefs.getUserModel().getEmail().startsWith("some")) {
+                complete.setVisibility(View.VISIBLE);
+            } else {
+                complete.setVisibility(View.GONE);
 
+            }
         }
         getDataFromServer();
     }
@@ -305,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
         ImageView scan = layout.findViewById(R.id.scan);
         EditText groupId = layout.findViewById(R.id.groupId);
         Button enter = layout.findViewById(R.id.enter);
+        ProgressBar progress = layout.findViewById(R.id.progress);
 
         scan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -318,7 +364,8 @@ public class MainActivity extends AppCompatActivity {
                 if (groupId.getText().length() == 0) {
                     groupId.setError("Enter Group id");
                 } else {
-                    callAddToGroupApi(groupId.getText().toString());
+                    progress.setVisibility(View.VISIBLE);
+                    callAddToGroupApi(groupId.getText().toString(), progress, dialog);
                 }
             }
         });
@@ -328,36 +375,57 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void callAddToGroupApi(String groupId) {
+    private void callAddToGroupApi(String groupId, ProgressBar progress, Dialog dialog) {
         UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
 
         JsonObject map = new JsonObject();
         map.addProperty("api_username", AppConfig.API_USERNAME);
         map.addProperty("api_password", AppConfig.API_PASSOWRD);
         map.addProperty("code", groupId);
-        Call<RoomDetailsResponse> call = getResponse.getRoomDetailsFromID(map);
-        call.enqueue(new Callback<RoomDetailsResponse>() {
+        Call<ApiResponse> call = getResponse.getRoomDetailsFromID(map);
+        call.enqueue(new Callback<ApiResponse>() {
             @Override
-            public void onResponse(Call<RoomDetailsResponse> call, Response<RoomDetailsResponse> response) {
-
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                progress.setVisibility(View.INVISIBLE);
                 if (response.code() == 200) {
-                    RoomModel object = response.body().getRoom();
-                    if (SharedPrefs.getUserModel() != null) {
-                        Intent i = new Intent(MainActivity.this, AddUserToRoom.class);
-                        i.putExtra("roomId", object.getId());
-                        startActivity(i);
-                        finish();
-
-                    } else if (response.code() == 404) {
-                        CommonUtils.showToast("Wrong group id");
+                    RoomModel room = response.body().getRoom();
+                    UserModel user = response.body().getUser();
+                    if (user != null) {
+                        dialog.dismiss();
+                        WordViewModel mWordViewModel;
+                        mWordViewModel = ViewModelProviders.of(MainActivity.this).get(WordViewModel.class);
+                        Word myWordModel = new Word(
+                                1,
+                                "Group Created",
+                                Constants.MESSAGE_TYPE_BUBBLE,
+                                SharedPrefs.getUserModel().getName(),
+                                "", SharedPrefs.getUserModel().getId(),
+                                room.getId(),
+                                System.currentTimeMillis(),
+                                "", "", ""
+                                , "", 0, "", room.getCover_url()
+                                , room.getTitle(),
+                                true, 0);
+                        mWordViewModel.insert(myWordModel);
                     } else {
-                        CommonUtils.showToast(response.message());
+                        dialog.dismiss();
+                        if (room != null) {
+                            Intent i = new Intent(MainActivity.this, AddUserToRoom.class);
+                            i.putExtra("qrId", "" + groupId);
+                            startActivity(i);
+
+
+                        }
                     }
+                } else if (response.code() == 404) {
+                    CommonUtils.showToast("Wrong code");
+                } else {
+                    CommonUtils.showToast(response.message());
                 }
             }
 
             @Override
-            public void onFailure(Call<RoomDetailsResponse> call, Throwable t) {
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
                 CommonUtils.showToast(t.getMessage());
 
             }

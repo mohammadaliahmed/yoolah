@@ -26,6 +26,7 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
@@ -83,6 +84,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         viewHolder.name.setText(userModel.getTitle());
         viewHolder.time.setText(CommonUtils.getFormattedDate(userModel.getTime()));
         if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
+            viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_REPLY)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_BUBBLE)) {
             viewHolder.message.setText(userModel.getMessageText());

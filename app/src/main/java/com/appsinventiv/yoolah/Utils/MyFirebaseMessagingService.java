@@ -104,7 +104,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     "", "", ""
                     , "", 0, "", msgModel.getGroupPicUrl()
                     , msgModel.getRoomName(),
-                    true);
+                    true,0);
             mRepository.insert(amsgModel);
             SharedPrefs.setLastDate(CommonUtils.getDate(System.currentTimeMillis()), msgModel.getRoomId());
         }

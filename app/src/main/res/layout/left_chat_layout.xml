@@ -164,10 +164,41 @@
                         android:visibility="visible" />
                 </LinearLayout>
 
+
+                <RelativeLayout
+                    android:id="@+id/oldMessageLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/left_reply_bg"
+
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/oldMessageText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:autoLink="web"
+                        android:padding="5dp"
+                        android:text=""
+                        android:textColor="#fff"
+                        android:textColorLink="@color/colorWhite"
+                        android:textSize="13sp"
+                        android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/oldMessageImage"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_alignParentRight="true"
+                        android:scaleType="centerCrop" />
+                </RelativeLayout>
+
                 <TextView
                     android:id="@+id/messageText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/oldMessageLayout"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
                     android:autoLink="web"

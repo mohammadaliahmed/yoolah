@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.appsinventiv.yoolah.Database.WordRepository;
 import com.appsinventiv.yoolah.Database.WordViewModel;
 import com.appsinventiv.yoolah.Models.MessageModel;
+import com.appsinventiv.yoolah.Models.RoomModel;
 import com.appsinventiv.yoolah.Models.UserMessages;
 import com.appsinventiv.yoolah.Models.UserModel;
 import com.google.gson.Gson;
@@ -86,18 +87,18 @@ public class SharedPrefs {
 //        return playersList;
 //    }
 
-    public static void setDeletedMessagesId(HashMap<Integer, Integer> itemList) {
+    public static void setRoomDetails(HashMap<Integer, RoomModel> itemList) {
 
         Gson gson = new Gson();
         String json = gson.toJson(itemList);
-        preferenceSetter("setDeletedMessagesId", json);
+        preferenceSetter("setRoomDetails", json);
     }
 
-    public static HashMap<Integer, Integer> getDeletedMessagesId() {
+    public static HashMap<Integer, RoomModel> getRoomDetails() {
         Gson gson = new Gson();
 
-        HashMap<Integer, Integer> retMap = new Gson().fromJson(
-                preferenceGetter("setDeletedMessagesId"), new TypeToken<HashMap<Integer, Integer>>() {
+        HashMap<Integer, RoomModel> retMap = new Gson().fromJson(
+                preferenceGetter("setRoomDetails"), new TypeToken<HashMap<Integer, RoomModel>>() {
                 }.getType()
         );
 

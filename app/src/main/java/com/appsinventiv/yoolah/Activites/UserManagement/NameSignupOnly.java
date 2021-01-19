@@ -48,6 +48,7 @@ import java.net.URL;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -98,11 +99,15 @@ public class NameSignupOnly extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                String text;
+                try {
+                    String text;
 
-                ClipData myClip = ClipData.newPlainText("randomCode", user.getRandomcode());
-                myClipboard.setPrimaryClip(myClip);
-                CommonUtils.showToast("Code Copied to clipboard");
+                    ClipData myClip = ClipData.newPlainText("randomCode", user.getRandomcode());
+                    myClipboard.setPrimaryClip(myClip);
+                    CommonUtils.showToast("Code Copied to clipboard");
+                } catch (Exception e) {
+
+                }
             }
         });
         createPdf.setOnClickListener(new View.OnClickListener() {

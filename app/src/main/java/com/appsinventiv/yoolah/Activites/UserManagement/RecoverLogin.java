@@ -28,10 +28,12 @@ import com.appsinventiv.yoolah.Utils.SharedPrefs;
 import com.appsinventiv.yoolah.Utils.UserClient;
 import com.google.gson.JsonObject;
 
+import java.util.HashMap;
 import java.util.List;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProviders;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -118,6 +120,7 @@ public class RecoverLogin extends AppCompatActivity {
     private void insertMessage(List<RoomModel> rooms) {
         WordViewModel mWordViewModel;
         mWordViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
+        HashMap<Integer, RoomModel> map = new HashMap<>();
         for (RoomModel room : rooms) {
             Word myWordModel = new Word(
                     1,
@@ -130,9 +133,13 @@ public class RecoverLogin extends AppCompatActivity {
                     "", "", ""
                     , "", 0, "", room.getCover_url()
                     , room.getTitle(),
-                    true);
+                    true, 0);
             mWordViewModel.insert(myWordModel);
+
+            map.put(room.getId(), room);
+
         }
+        SharedPrefs.setRoomDetails(map);
 
 
     }

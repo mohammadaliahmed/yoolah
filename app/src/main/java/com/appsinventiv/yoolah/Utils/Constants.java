@@ -9,6 +9,7 @@ public class Constants {
 
     public static String MESSAGE_TYPE_IMAGE="IMAGE";
     public static String MESSAGE_TYPE_TEXT="TEXT";
+    public static String MESSAGE_TYPE_REPLY="REPLY";
     public static String MESSAGE_TYPE_BUBBLE="BUBBLE";
     public static String MESSAGE_TYPE_AUDIO="AUDIO";
     public static String MESSAGE_TYPE_VIDEO="VIDEO";

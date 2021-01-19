@@ -2,6 +2,7 @@ package com.appsinventiv.yoolah.Utils;
 
 
 import com.appsinventiv.yoolah.NetworkResponses.AllRoomMessagesResponse;
+import com.appsinventiv.yoolah.NetworkResponses.ApiResponse;
 import com.appsinventiv.yoolah.NetworkResponses.GetPollResponse;
 import com.appsinventiv.yoolah.NetworkResponses.LoginResponse;
 import com.appsinventiv.yoolah.NetworkResponses.MessageInfoResponse;
@@ -226,7 +227,7 @@ public interface UserClient {
 
     @Headers("Content-Type: application/json")
     @POST("api/room/getRoomDetailsFromID")
-    Call<RoomDetailsResponse> getRoomDetailsFromID(
+    Call<ApiResponse> getRoomDetailsFromID(
             @Body JsonObject jsonObject
 
     );
@@ -255,6 +256,20 @@ public interface UserClient {
     @Headers("Content-Type: application/json")
     @POST("api/message/userMessages")
     Call<UserMessagesResponse> userMessages(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/user/roomList")
+    Call<ApiResponse> roomList(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
+    @POST("api/room/getFirstTimeGroups")
+    Call<ApiResponse> getFirstTimeGroups(
             @Body JsonObject jsonObject
 
     );

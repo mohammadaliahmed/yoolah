@@ -3,9 +3,11 @@
     <color name="colorPrimary">#fff</color>
     <color name="colorPrimaryDark">#fff</color>
     <color name="colorAccent">#2D4A84</color>
+    <color name="colorBlueLight">#5F7CB8</color>
     <color name="gray">#737171</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="logoGrey">#868686</color>
+    <color name="logoGreyDark">#5A5A5A</color>
     <color name="colorBlue">#2D4A84</color>
     <color name="lightGrey">#CFCFCF</color>
     <color name="colorRed">#F44336</color>

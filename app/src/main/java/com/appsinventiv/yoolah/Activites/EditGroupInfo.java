@@ -3,39 +3,27 @@ package com.appsinventiv.yoolah.Activites;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.appsinventiv.yoolah.Activites.UserManagement.LoginActivity;
-import com.appsinventiv.yoolah.Activites.UserManagement.MyProfile;
 import com.appsinventiv.yoolah.Adapters.ParticipantsAdapter;
 import com.appsinventiv.yoolah.Models.UserModel;
 import com.appsinventiv.yoolah.NetworkResponses.RoomInfoResponse;
-import com.appsinventiv.yoolah.NetworkResponses.UserProfileResponse;
 import com.appsinventiv.yoolah.R;
 import com.appsinventiv.yoolah.Utils.AppConfig;
 import com.appsinventiv.yoolah.Utils.CommonUtils;
 import com.appsinventiv.yoolah.Utils.CompressImage;
-import com.appsinventiv.yoolah.Utils.GifSizeFilter;
-import com.appsinventiv.yoolah.Utils.Glide4Engine;
 import com.appsinventiv.yoolah.Utils.SharedPrefs;
 import com.appsinventiv.yoolah.Utils.UserClient;
 import com.bumptech.glide.Glide;
+import com.fxn.pix.Options;
+import com.fxn.pix.Pix;
 import com.google.gson.JsonObject;
-import com.zhihu.matisse.Matisse;
-import com.zhihu.matisse.MimeType;
-import com.zhihu.matisse.filter.Filter;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -65,7 +54,7 @@ public class EditGroupInfo extends AppCompatActivity {
     int roomId;
     ParticipantsAdapter adapter;
     private List<UserModel> userList = new ArrayList<>();
-    private List<Uri> mSelected = new ArrayList<>();
+    private ArrayList<String> mSelected = new ArrayList<>();
     private String compressedUrl;
     private String liveUrl;
     RelativeLayout wholeLayout;
@@ -180,17 +169,14 @@ public class EditGroupInfo extends AppCompatActivity {
     }
 
     private void initmatisse() {
-        Matisse.from(this)
-                .choose(MimeType.ofImage())
-                .countable(true)
-                .maxSelectable(1)
-                .showSingleMediaType(true)
-                .addFilter(new GifSizeFilter(320, 320, 5 * Filter.K * Filter.K))
-                .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.grid_expected_size))
-                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                .thumbnailScale(0.85f)
-                .imageEngine(new Glide4Engine())
-                .forResult(REQUEST_CODE_CHOOSE);
+        Options options = Options.init()
+                .setRequestCode(23)                                           //Request code for activity results
+                .setCount(1)                                                   //Number of images to restict selection count
+                .setExcludeVideos(true)                                       //Option to exclude videos
+                .setScreenOrientation(Options.SCREEN_ORIENTATION_PORTRAIT)     //Orientaion
+                ;                                       //Custom Path For media Storage
+
+        Pix.start(this, options);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -200,14 +186,11 @@ public class EditGroupInfo extends AppCompatActivity {
 
 
         if (requestCode == 23) {
-            if (data != null) {
-                mSelected = Matisse.obtainResult(data);
-                CompressImage compressImage = new CompressImage(this);
-                compressedUrl = compressImage.compressImage("" + mSelected.get(0));
-                Glide.with(EditGroupInfo.this).load(mSelected.get(0)).into(image);
-                uploadImageToServer();
-
-            }
+            mSelected = data.getStringArrayListExtra(Pix.IMAGE_RESULTS);
+            CompressImage compressImage = new CompressImage(this);
+            compressedUrl = compressImage.compressImage(mSelected.get(0));
+            Glide.with(EditGroupInfo.this).load(mSelected.get(0)).into(image);
+            uploadImageToServer();
 
         }
     }

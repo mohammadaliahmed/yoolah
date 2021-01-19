@@ -25,10 +25,6 @@ import java.io.InputStream;
  */
 
 public class CompressImage {
-    /*
-     * Compressing pictures
-     *
-     * */
     Context context;
 
     public CompressImage(Context context) {
@@ -45,23 +41,15 @@ public class CompressImage {
 //      by setting this field as true, the actual bitmap pixels are not loaded in the memory. Just the bounds are loaded. If
 //      you try the use the bitmap here, you will get null.
         options.inJustDecodeBounds = true;
-        Bitmap bmp = null;
-//        = BitmapFactory.decodeFile(filePath, options);
-        try {
-            InputStream in = context.getContentResolver().openInputStream(
-                    Uri.parse(imageUri));
-           bmp= BitmapFactory.decodeStream(in, null, options);
-        } catch (FileNotFoundException e) {
-            // do something
-        }
+        Bitmap bmp = BitmapFactory.decodeFile(filePath, options);
 
         int actualHeight = options.outHeight;
         int actualWidth = options.outWidth;
 
 //      max Height and width values of the compressed image is taken as 816x612
 
-        float maxHeight = 600.0f;
-        float maxWidth = 500.0f;
+        float maxHeight = 816.0f;
+        float maxWidth = 612.0f;
         float imgRatio = actualWidth / actualHeight;
         float maxRatio = maxWidth / maxHeight;
 
@@ -117,7 +105,6 @@ public class CompressImage {
         scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
 
         Canvas canvas = new Canvas(scaledBitmap);
-        canvas.drawColor(Color.WHITE);
         canvas.setMatrix(scaleMatrix);
         canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
 

@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class WordChatListAdapter extends RecyclerView.Adapter<WordChatListAdapter.ViewHolder> {
@@ -87,6 +88,9 @@ public class WordChatListAdapter extends RecyclerView.Adapter<WordChatListAdapte
         viewHolder.time.setText(CommonUtils.getFormattedDate(userModel.getTime()));
         if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
+        }
+        if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_REPLY)) {
+            viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_BUBBLE)) {
             viewHolder.message.setText(userModel.getMessageText());
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
@@ -110,8 +114,11 @@ public class WordChatListAdapter extends RecyclerView.Adapter<WordChatListAdapte
                 context.startActivity(i);
             }
         });
-        Glide.with(context).load(AppConfig.BASE_URL_Image + userModel.getGroupPicUrl()).placeholder(R.drawable.team).into(viewHolder.picture);
+        try {
+            Glide.with(context).load(AppConfig.BASE_URL_Image + SharedPrefs.getRoomDetails().get(userModel.getRoomId()).getCover_url()).placeholder(R.drawable.team).into(viewHolder.picture);
+        } catch (Exception e) {
 
+        }
         if (userModel.isMessageRead()) {
 
             viewHolder.name.setTypeface(Typeface.DEFAULT);

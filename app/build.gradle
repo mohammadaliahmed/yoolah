@@ -32,8 +32,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 //    implementation 'com.zhihu.android:matisse:0.5.2'
-    implementation 'com.zhihu.android:matisse:0.5.3-beta3'
-
     implementation 'com.tbuonomo.andrui:viewpagerdotsindicator:1.0.1'
     implementation 'com.google.firebase:firebase-core:17.0.0'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
@@ -59,6 +57,7 @@ dependencies {
     androidTestImplementation "android.arch.persistence.room:testing:$rootProject.roomVersion"
     androidTestImplementation "android.arch.core:core-testing:1.1.1"
     implementation 'com.google.android.libraries.places:places:2.3.0'
+    implementation  'com.fxn769:pix:1.5.3'
 
 
 }

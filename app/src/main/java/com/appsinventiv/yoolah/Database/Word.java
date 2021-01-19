@@ -49,6 +49,18 @@ public class Word {
     @ColumnInfo(name = "roomId")
 
     private Integer roomId;
+
+
+
+    @SerializedName("oldId")
+    @Expose
+    @ColumnInfo(name = "oldId")
+
+    private Integer oldId;
+
+
+
+
     @SerializedName("serverId")
     @Expose
     @ColumnInfo(name = "serverId")
@@ -117,7 +129,7 @@ public class Word {
 
     public Word(Integer serverId, String messageText, String messageType, String messageByName, String documentUrl,
                 Integer messageById, Integer roomId, Long time, String audioUrl, String videoUrl, String imageUrl,
-                String messageByPicUrl, long mediaTime, String filename, String groupPicUrl,String roomName, boolean messageRead) {
+                String messageByPicUrl, long mediaTime, String filename, String groupPicUrl, String roomName, boolean messageRead,int oldId) {
         this.messageText = messageText;
         this.messageType = messageType;
         this.messageByName = messageByName;
@@ -135,7 +147,19 @@ public class Word {
         this.groupPicUrl = groupPicUrl;
         this.messageRead = messageRead;
         this.roomName = roomName;
+        this.oldId = oldId;
     }
+
+
+    public Integer getOldId() {
+        return oldId;
+    }
+
+    public void setOldId(Integer oldId) {
+        this.oldId = oldId;
+    }
+
+
 
     public String  getRoomName() {
         return roomName;

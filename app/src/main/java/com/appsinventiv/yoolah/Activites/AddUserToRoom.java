@@ -109,7 +109,7 @@ public class AddUserToRoom extends AppCompatActivity {
                 "", "", ""
                 , "", 0, "", room.getCover_url()
                 , room.getTitle(),
-                true);
+                true,0);
         mWordViewModel.insert(myWordModel);
 
     }
