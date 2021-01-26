@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".views.CropImg">
+
+    <com.takusemba.cropme.CropLayout
+        android:id="@+id/crop_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cropme_background_alpha="80%"
+        app:cropme_frame_height_percent="80%"
+        app:cropme_frame_width_percent="80%"
+        app:cropme_max_scale="2.0"
+        app:cropme_overlay_shape="rectangle"
+        app:cropme_with_border="true" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/done_btn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/done_btn_margin"
+        app:srcCompat="@drawable/ic_done" />
+</RelativeLayout>

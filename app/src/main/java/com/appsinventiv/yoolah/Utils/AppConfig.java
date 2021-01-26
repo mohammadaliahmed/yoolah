@@ -10,7 +10,7 @@ public class AppConfig {
         public static String LPTOP_ID = "http://192.168.100.31/yoolahserver/public/";
 //    public static String LPTOP_ID = "http://192.168.8.104/yoolahserver/";
     public static String SERVER_URL = "http://yoolah.com/";
-    public static String BASE_URL = LPTOP_ID;
+    public static String BASE_URL = SERVER_URL;
     public static String API_USERNAME = "WF9.FJ8u'FP{c5Pw";
     public static String API_PASSOWRD = "3B~fauh5s93j[FKb";
 

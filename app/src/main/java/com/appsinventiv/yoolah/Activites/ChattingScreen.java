@@ -56,6 +56,7 @@ import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordListener;
 import com.devlomi.record_view.RecordButton;
 import com.devlomi.record_view.RecordView;
+import com.droidninja.imageeditengine.ImageEditor;
 import com.fxn.pix.Options;
 import com.fxn.pix.Pix;
 import com.google.gson.Gson;
@@ -320,9 +321,13 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                     attachArea.setVisibility(View.VISIBLE);
                     isAttachAreaVisible = true;
                 }
-                Intent i = new Intent(ChattingScreen.this, GPSTrackerActivity.class);
-
+//                Intent i = new Intent(ChattingScreen.this, GPSTrackerActivity.class);
+//
+//                startActivityForResult(i, 1);
+                Intent i = new Intent(ChattingScreen.this, ShareLocation.class);
+//
                 startActivityForResult(i, 1);
+
 
             }
         });
@@ -1014,6 +1019,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
 
         }
+
+
 //
 //        if (requestCode == 24) {
 //            if (data != null) {
@@ -1054,29 +1061,66 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
 
         }
+        if (requestCode == 52) {
+            String imagePath = data.getStringExtra(ImageEditor.EXTRA_EDITED_PATH);
+            CompressImage compressImage = new CompressImage(this);
+            compressedUrl = compressImage.compressImage(imagePath);
+            myWordModel = new Word(
+                    1, "",
+                    Constants.MESSAGE_TYPE_IMAGE,
+                    SharedPrefs.getUserModel().getName(), "",
+                    SharedPrefs.getUserModel().getId(),
+                    roomId,
+                    System.currentTimeMillis(),
+                    "", "",
+                    compressedUrl
+                    , SharedPrefs.getUserModel().getPicUrl(), 0
+                    , "",
+                    object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
+            mWordViewModel.insert(myWordModel);
+
+
+            uploadImageToServer();
+
+        }
         if (resultCode == Activity.RESULT_OK && requestCode == 23) {
 
             try {
 
                 mSelected = data.getStringArrayListExtra(Pix.IMAGE_RESULTS);
-                CompressImage compressImage = new CompressImage(this);
-                compressedUrl = compressImage.compressImage(mSelected.get(0));
-                myWordModel = new Word(
-                        1, "",
-                        Constants.MESSAGE_TYPE_IMAGE,
-                        SharedPrefs.getUserModel().getName(), "",
-                        SharedPrefs.getUserModel().getId(),
-                        roomId,
-                        System.currentTimeMillis(),
-                        "", "",
-                        mSelected.get(0)
-                        , SharedPrefs.getUserModel().getPicUrl(), 0
-                        , "",
-                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
-                mWordViewModel.insert(myWordModel);
+//                Intent i = new Intent(ChattingScreen.this, ViewAndSendImage.class);
+//                i.putExtra("url", mSelected.get(0));
+//                startActivity(i);
+
+                try {
+                    new ImageEditor.Builder(ChattingScreen.this, mSelected.get(0))
+                            .setStickerAssets("stickers")
+                            .open();
+                } catch (Exception e) {
+                    new ImageEditor.Builder(ChattingScreen.this, mSelected.get(0))
+                            .setStickerAssets("stickers")
+                            .open();
+                }
 
 
-                uploadImageToServer();
+//                CompressImage compressImage = new CompressImage(this);
+//                compressedUrl = compressImage.compressImage(mSelected.get(0));
+//                myWordModel = new Word(
+//                        1, "",
+//                        Constants.MESSAGE_TYPE_IMAGE,
+//                        SharedPrefs.getUserModel().getName(), "",
+//                        SharedPrefs.getUserModel().getId(),
+//                        roomId,
+//                        System.currentTimeMillis(),
+//                        "", "",
+//                        mSelected.get(0)
+//                        , SharedPrefs.getUserModel().getPicUrl(), 0
+//                        , "",
+//                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
+//                mWordViewModel.insert(myWordModel);
+//
+//
+//                uploadImageToServer();
             } catch (Exception e) {
                 CommonUtils.showToast(e.getMessage());
             }
@@ -1085,37 +1129,37 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     }
 
     private void showLocationShareAlert() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Location Alert");
-        builder.setMessage("Share location with group members? ");
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setTitle("Location Alert");
+//        builder.setMessage("Share location with group members? ");
+//
+//        // add the buttons
+//        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+        messageText = lat + "," + lon;
+        myWordModel = new Word(
+                1, messageText,
+                Constants.MESSAGE_TYPE_LOCATION,
+                SharedPrefs.getUserModel().getName(), "",
+                SharedPrefs.getUserModel().getId(),
+                roomId,
+                System.currentTimeMillis(),
+                "", videoPath,
+                ""
+                , SharedPrefs.getUserModel().getPicUrl(), 0
+                , "",
+                object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
+        mWordViewModel.insert(myWordModel);
+        sendMessage(Constants.MESSAGE_TYPE_LOCATION);
 
-        // add the buttons
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                messageText = lat + "," + lon;
-                myWordModel = new Word(
-                        1, messageText,
-                        Constants.MESSAGE_TYPE_LOCATION,
-                        SharedPrefs.getUserModel().getName(), "",
-                        SharedPrefs.getUserModel().getId(),
-                        roomId,
-                        System.currentTimeMillis(),
-                        "", videoPath,
-                        ""
-                        , SharedPrefs.getUserModel().getPicUrl(), 0
-                        , "",
-                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
-                mWordViewModel.insert(myWordModel);
-                sendMessage(Constants.MESSAGE_TYPE_LOCATION);
-
-            }
-        });
-        builder.setNegativeButton("Cancel", null);
-
-        // create and show the alert dialog
-        AlertDialog dialog = builder.create();
-        dialog.show();
+//            }
+//        });
+//        builder.setNegativeButton("Cancel", null);
+//
+//        // create and show the alert dialog
+//        AlertDialog dialog = builder.create();
+//        dialog.show();
     }
 
 

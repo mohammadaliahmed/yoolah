@@ -36,6 +36,7 @@ import com.appsinventiv.yoolah.R;
 import com.appsinventiv.yoolah.Utils.AppConfig;
 import com.appsinventiv.yoolah.Utils.CommonUtils;
 import com.appsinventiv.yoolah.Utils.DownloadFile;
+import com.appsinventiv.yoolah.Utils.KeyboardUtils;
 import com.appsinventiv.yoolah.Utils.SharedPrefs;
 import com.appsinventiv.yoolah.Utils.UserClient;
 import com.bumptech.glide.Glide;
@@ -77,6 +78,7 @@ public class NameSignupOnly extends AppCompatActivity {
     TextView infoText;
     private File filePath;
 
+    RelativeLayout asfdasd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +93,7 @@ public class NameSignupOnly extends AppCompatActivity {
         afterArea = findViewById(R.id.afterArea);
         qrImage = findViewById(R.id.qrImage);
         randomCode = findViewById(R.id.randomCode);
+        asfdasd = findViewById(R.id.asfdasd);
         continueTo = findViewById(R.id.continueTo);
         downloadQr = findViewById(R.id.downloadQr);
         copyToClibboard = findViewById(R.id.copyToClipboard);
@@ -220,6 +223,7 @@ public class NameSignupOnly extends AppCompatActivity {
                         createQRImg();
 //                        startActivity(new Intent(NameSignupOnly.this, MainActivity.class));
 //                        finish();
+                        KeyboardUtils.forceCloseKeyboard(asfdasd);
                         afterArea.setVisibility(View.VISIBLE);
                         signup.setVisibility(View.GONE);
                         continueTo.setVisibility(View.VISIBLE);
