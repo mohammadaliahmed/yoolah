@@ -324,9 +324,13 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 //                Intent i = new Intent(ChattingScreen.this, GPSTrackerActivity.class);
 //
 //                startActivityForResult(i, 1);
-                Intent i = new Intent(ChattingScreen.this, ShareLocation.class);
-//
-                startActivityForResult(i, 1);
+                try {
+                    Intent i = new Intent(ChattingScreen.this, ShareLocation.class);
+                    i.putExtra("room", object.getRoom());
+                    startActivityForResult(i, 1);
+                } catch (Exception e) {
+                    CommonUtils.showToast("Getting location..");
+                }
 
 
             }
@@ -991,7 +995,26 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             if (data != null) {
                 lat = data.getDoubleExtra("Latitude", 0);
                 lon = data.getDoubleExtra("Longitude", 0);
-                showLocationShareAlert();
+                String mapImagePath = data.getStringExtra("mapImagePath");
+                CompressImage compressImage = new CompressImage(this);
+                compressedUrl = compressImage.compressImage(mapImagePath);
+                messageText = lat + "," + lon;
+                myWordModel = new Word(
+                        1, messageText,
+                        Constants.MESSAGE_TYPE_LOCATION,
+                        SharedPrefs.getUserModel().getName(), "",
+                        SharedPrefs.getUserModel().getId(),
+                        roomId,
+                        System.currentTimeMillis(),
+                        "", videoPath,
+                        ""
+                        , SharedPrefs.getUserModel().getPicUrl(), 0
+                        , "",
+                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
+                mWordViewModel.insert(myWordModel);
+                uploadImageToServer(Constants.MESSAGE_TYPE_LOCATION);
+//                sendMessage(Constants.MESSAGE_TYPE_LOCATION);
+//                showLocationShareAlert();
 
             }
         }
@@ -1020,36 +1043,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
         }
 
-
-//
-//        if (requestCode == 24) {
-//            if (data != null) {
-//                mSelected = Matisse.obtainResult(data);
-//                String string = Long.toHexString(Double.doubleToLongBits(Math.random()));
-//                videoPath = CommonUtils.getRealPathFromURI(mSelected.get(0));
-//
-//                thumbFilename = new File(Environment.getExternalStoragePublicDirectory(
-//                        Environment.DIRECTORY_DOWNLOADS) + "/" + string + ".jpg");
-////                generateVideoThmb(videoPath, thumbFilename);
-//                myWordModel = new Word(
-//                        1, "",
-//                        Constants.MESSAGE_TYPE_VIDEO,
-//                        SharedPrefs.getUserModel().getName(), "",
-//                        SharedPrefs.getUserModel().getId(),
-//                        roomId,
-//                        System.currentTimeMillis(),
-//                        "", videoPath,
-//                        ""
-//                        , SharedPrefs.getUserModel().getPicUrl(), 0
-//                        , "",
-//                        object.getRoom().getCover_url(), object.getRoom().getTitle(), true, oldMessageId);
-//                mWordViewModel.insert(myWordModel);
-//                uploadVideoToServer(videoPath);
-//
-//
-//            }
-//
-//        }
         if (requestCode == Constant.REQUEST_CODE_PICK_FILE && data != null) {
 //            Uri Fpath = data.getData();
             ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
@@ -1080,7 +1073,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
             mWordViewModel.insert(myWordModel);
 
 
-            uploadImageToServer();
+            uploadImageToServer(Constants.MESSAGE_TYPE_IMAGE);
 
         }
         if (resultCode == Activity.RESULT_OK && requestCode == 23) {
@@ -1214,7 +1207,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
     }
 
-    private void uploadImageToServer() {
+    private void uploadImageToServer(String type) {
 
         // create upload service client
         File file = new File(compressedUrl);
@@ -1234,7 +1227,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
 
                     try {
                         liveUrl = response.body().string();
-                        sendMessage(Constants.MESSAGE_TYPE_IMAGE);
+                        sendMessage(type);
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -1470,6 +1463,9 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_IMAGE)) {
             map.addProperty("imageUrl", liveUrl);
 
+        } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_IMAGE)) {
+            map.addProperty("imageUrl", liveUrl);
+
         } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_AUDIO)) {
             map.addProperty("audioUrl", liveUrl);
             map.addProperty("mediaTime", recordingTime);
@@ -1548,7 +1544,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                 } else if (type.equals(Constants.MESSAGE_TYPE_TRANSLATED)) {
                     NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83C\uDE02 Translation";
                 } else if (type.equals(Constants.MESSAGE_TYPE_LOCATION)) {
-                    NotificationMessage = SharedPrefs.getUserModel().getName() + ": \uD83D\uDCCD Location";
+                    NotificationMessage = SharedPrefs.getUserModel().getName() + ": \ud83d\udccd Location";
                 } else if (type.equals(Constants.MESSAGE_TYPE_CONTACT)) {
                     NotificationMessage = SharedPrefs.getUserModel().getName() + ": ☎ Contact";
                 } else if (type.equals(Constants.MESSAGE_TYPE_POST)) {

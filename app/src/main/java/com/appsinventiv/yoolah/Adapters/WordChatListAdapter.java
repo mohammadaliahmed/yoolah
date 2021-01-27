@@ -88,11 +88,12 @@ public class WordChatListAdapter extends RecyclerView.Adapter<WordChatListAdapte
         viewHolder.time.setText(CommonUtils.getFormattedDate(userModel.getTime()));
         if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
-        }
-        if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_REPLY)) {
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_REPLY)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + userModel.getMessageText());
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_BUBBLE)) {
             viewHolder.message.setText(userModel.getMessageText());
+        } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_LOCATION)) {
+            viewHolder.message.setText("\ud83d\udccd Location");
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_IMAGE)) {
             viewHolder.message.setText(userModel.getMessageByName() + ": " + "\uD83D\uDCF7  Image");
         } else if (userModel.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {

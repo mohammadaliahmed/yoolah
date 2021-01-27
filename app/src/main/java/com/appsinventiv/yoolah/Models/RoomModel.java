@@ -3,7 +3,9 @@ package com.appsinventiv.yoolah.Models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class RoomModel {
+import java.io.Serializable;
+
+public class RoomModel implements Serializable {
     @SerializedName("id")
     @Expose
     private Integer id;

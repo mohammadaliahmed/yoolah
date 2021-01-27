@@ -134,7 +134,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_CONTACT)) {
@@ -148,7 +149,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
 
                 viewHolder.location.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_TEXT)) {
@@ -162,7 +164,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.deletedLayout.setVisibility(View.GONE);
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_REPLY)) {
@@ -192,7 +195,6 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                     }
                 }
 
-
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_LOCATION)) {
                 viewHolder.image.setVisibility(View.GONE);
                 viewHolder.messageText.setVisibility(View.GONE);
@@ -203,7 +205,9 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.filename.setText(model.getFilename());
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+
+                Glide.with(context).load(AppConfig.BASE_URL_Image + model.getImageUrl()).into(viewHolder.location);
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DOCUMENT)) {
@@ -216,7 +220,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_DELETED)) {
@@ -231,7 +236,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_VIDEO)) {
@@ -258,7 +264,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.deletedLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else if (model.getMessageType().equals(Constants.MESSAGE_TYPE_AUDIO)) {
@@ -282,7 +289,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 }
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             } else {
@@ -296,7 +304,8 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
                 viewHolder.videoLayout.setVisibility(View.GONE);
                 viewHolder.location.setVisibility(View.GONE);
                 viewHolder.contactLayout.setVisibility(View.GONE);
-                viewHolder.oldMessageLayout.setVisibility(View.GONE);;
+                viewHolder.oldMessageLayout.setVisibility(View.GONE);
+                ;
 
 
             }
