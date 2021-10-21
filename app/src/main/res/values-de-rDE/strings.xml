@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">YOOLAH</string>
+
+
+    <string name="contact">Kontakt</string>
+    <string name="location">Standort</string>
+    <string name="document">Dokument</string>
+    <string name="video">Video</string>
+    <string name="gallery">Galerie</string>
+    <string name="audio">Audio</string>
+    <string name="adding_you_to_group..">Zur Gruppe hinzufügen...</string>
+    <string name="you_are_not_authorized_to_send_message">Du hast keine Schreibberechtigung</string>
+    <string name="reply_to">Antworten:</string>
+    <string name="no_contacts">Keine Kontakte</string>
+    <string name="opt_1">Option 1:</string>
+    <string name="login">Anmelden</string>
+    <string name="dont_have_an_account_signup">Du hast kein Benutzerkonto, melde dich an !</string>
+    <string name="welcome_to_yoolah">Willkommen bei YOOLAH</string>
+    <string name="enter_a_group_id_or_scan_qr_code">Füge ein Gruppen ID ein oder scanne QR Code </string>
+    <string name="or">oder</string>
+    <string name="scan_qr">QR Code scannen</string>
+    <string name="recover_login">Login Daten ermitteln</string>
+    <string name="development">Entwicklung</string>
+    <string name="please_complete_your_profile">Bitte die Anmeldung vervollständigen</string>
+    <string name="share">Teilen</string>
+    <string name="read_by">Lesen bis</string>
+    <string name="update">Aktualisieren</string>
+    <string name="logout">Abmelden</string>
+    <string name="enter_your_name_to_continue">Name eingeben zum Fortfahren</string>
+    <string name="download_and_save_this_qr_code_for_easy_login">Name eingeben zum Fortfahren</string>
+    <string name="your_id_is">Deine ID ist:</string>
+    <string name="continuee">Fortfahren</string>
+    <string name="please_copy_and_save_it">Bitte kopieren und abspeichern</string>
+    <string name="register">Anmelden</string>
+    <string name="already_have_an_account">Du hast schon ein Zugang, bitte melde dich an </string>
+    <string name="signup">Melde dich an</string>
+    <string name="share_location">Standort teilen</string>
+    <string name="email_a_participant_to_join_group">Lade einen Teilnehmer per Email ein</string>
+    <string name="invite">einladen</string>
+    <string name="choose_option">Wähle Option</string>
+    <string name="copy">kopieren</string>
+    <string name="delete">löschen</string>
+    <string name="delete_for_everyone">für jeden löschen</string>
+    <string name="delivery_info">Zustell Information</string>
+    <string name="cancel">CaAbbrechenncel</string>
+    <string name="enter">Eingeben</string>
+    <string name="this_message_was_deleted">Diese Nachricht wurde gelöscht</string>
+    <string name="cannot">kann nicht / kann schreiben</string>
+    <string name="admin">Admin</string>
+    <string name="photo">Foto</string>
+    <string name="please_copy_your_id_safely_which">Willkommen, bitte speicher dir sicher deine ID, falls du dich später anmelden musst</string>
+    <string name="participants">Teilnehmer</string>
+    <string name="total_votes">Alle Stimmen:</string>
+    <string name="title">Titel</string>
+    <string name="question">Frage</string>
+    <string name="choose_app_language">App-Sprache auswählen</string>
+    <string name="fill_poll">Umfrage ausfüllen</string>
+    <string name="create_poll">Umfrage erstellen</string>
+    <string name="list_of_polls">Liste der Umfragen</string>
+    <string name="select_contact">Wählen Sie Kontakt</string>
+    <string name="votes">Stimmen</string>
+    <string name="my_profile">Mein Profil</string>
+    <string name="leave_group">Gruppe verlassen</string>
+    <string name="message_info">Nachrichteninfo</string>
+
+
+    <string name="enter_message">Nachricht eingeben</string>
+    <string name="enter_id">ID eingeben</string>
+    <string name="submit">einreichen</string>
+    <string name="name">Name</string>
+    <string name="room_id">Zimmer-ID</string>
+    <string name="password">Passwort</string>
+    <string name="enter_question">Frage eingeben</string>
+    <string name="enter_title">Titel eingeben</string>
+    <string name="settings">die Einstellungen</string>
+
+
+</resources>

@@ -52,7 +52,7 @@ public class PollsListToFill extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("List of polls");
+        this.setTitle(getResources().getString(R.string.list_of_polls));
         recyclerview = findViewById(R.id.recyclerview);
         adapter = new PollToFillAdapter(this, itemList);
         recyclerview.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));

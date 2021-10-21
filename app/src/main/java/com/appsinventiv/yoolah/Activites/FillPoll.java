@@ -58,7 +58,7 @@ public class FillPoll extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("Fill Poll");
+        this.setTitle(getResources().getString(R.string.fill_poll));
         pollId = getIntent().getIntExtra("pollId", 0);
 
         getDataFromServer();
@@ -198,7 +198,7 @@ public class FillPoll extends AppCompatActivity {
                             PollAnswer answer = response.body().getPollAnswer();
                             answered = true;
                             voteCount.setVisibility(View.VISIBLE);
-                            voteCount.setText("Total Votes: " + object.getAnswers().size());
+                            voteCount.setText(getResources().getString(R.string.total_votes)+": " + object.getAnswers().size());
                             if (answer.getOption() == 1) {
                                 option1.setBackground(getResources().getDrawable(R.drawable.curved_corners_filled));
                                 option1.setTextColor(getResources().getColor(R.color.colorWhite));

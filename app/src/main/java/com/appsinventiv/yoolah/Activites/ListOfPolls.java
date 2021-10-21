@@ -55,7 +55,7 @@ public class ListOfPolls extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("List of polls");
+        this.setTitle(getResources().getString(R.string.list_of_polls));
         recyclerview = findViewById(R.id.recyclerview);
         adapter = new PollsListAdapter(this, itemList, new PollsListAdapter.PollsAdapterCallback() {
             @Override

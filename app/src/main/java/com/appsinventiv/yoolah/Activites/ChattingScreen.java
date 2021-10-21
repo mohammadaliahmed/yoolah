@@ -516,7 +516,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         replyLayout.setVisibility(View.VISIBLE);
         if (itemList.get(position).getMessageType().equalsIgnoreCase(Constants.MESSAGE_TYPE_IMAGE)) {
             replyImage.setVisibility(View.VISIBLE);
-            replyOldText.setText("Photo");
+            replyOldText.setText(getResources().getString(R.string.photo));
             Glide.with(this).load(AppConfig.BASE_URL_Image + itemList.get(position).getImageUrl()).into(replyImage);
         } else {
             replyImage.setVisibility(View.GONE);
@@ -1439,6 +1439,7 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
                         bottomArea.setVisibility(View.GONE);
                     }
 
+                    SharedPrefs.setRoomInfo(object, roomId);
                 } else {
                     CommonUtils.showToast(response.message());
                 }
@@ -1452,6 +1453,8 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
     }
 
 
+
+
     private void sendMessage(String messageType) {
 
         UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
@@ -1461,9 +1464,6 @@ public class ChattingScreen extends AppCompatActivity implements NotificationObs
         map.addProperty("messageText", messageText);
         map.addProperty("messageType", messageType);
         if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_IMAGE)) {
-            map.addProperty("imageUrl", liveUrl);
-
-        } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_IMAGE)) {
             map.addProperty("imageUrl", liveUrl);
 
         } else if (messageType.equalsIgnoreCase(Constants.MESSAGE_TYPE_AUDIO)) {

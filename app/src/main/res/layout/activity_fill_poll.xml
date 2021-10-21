@@ -122,7 +122,7 @@
                     android:layout_gravity="center"
                     android:visibility="gone"
                     android:layout_margin="8dp"
-                    android:text="Total votes"
+                    android:text="@string/total_votes"
                     android:textStyle="bold" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

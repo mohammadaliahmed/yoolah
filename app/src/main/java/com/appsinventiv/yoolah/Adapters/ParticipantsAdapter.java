@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.appsinventiv.yoolah.Activites.ChattingScreen;
@@ -24,6 +26,7 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapter.ViewHolder> {
@@ -32,6 +35,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     List<UserModel> itemList;
     boolean isAdmin;
     ParticipantsAdapterCallbacks callbacks;
+
 
     public ParticipantsAdapter(Context context, List<UserModel> itemList, boolean isAdmin, ParticipantsAdapterCallbacks callbacks) {
         this.context = context;
@@ -62,6 +66,24 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         final UserModel userModel = itemList.get(i);
+
+        if (isAdmin) {
+            if (userModel.getCanMessage() == 1) {
+
+                viewHolder.canMessage.setChecked(true);
+            } else {
+                viewHolder.canMessage.setChecked(false);
+            }
+            if (userModel.getId().equals(SharedPrefs.getUserModel().getId())) {
+                viewHolder.canMessage.setVisibility(View.GONE);
+            } else {
+                viewHolder.canMessage.setVisibility(View.VISIBLE);
+            }
+
+
+        } else {
+            viewHolder.canMessage.setVisibility(View.GONE);
+        }
         viewHolder.name.setText(userModel.getName());
 
         Glide.with(context).load(AppConfig.BASE_URL_Image + userModel.getThumbnailUrl()).placeholder(R.drawable.team).into(viewHolder.picture);
@@ -69,29 +91,47 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
 
         if (isAdmin) {
             if (userModel.getId().equals(SharedPrefs.getUserModel().getId())) {
-                viewHolder.remove.setVisibility(View.GONE);
                 viewHolder.admin.setVisibility(View.VISIBLE);
 
 
             } else {
-                viewHolder.remove.setVisibility(View.VISIBLE);
                 viewHolder.admin.setVisibility(View.GONE);
 
             }
         } else {
-            viewHolder.remove.setVisibility(View.GONE);
             viewHolder.admin.setVisibility(View.GONE);
 
 
         }
 
-
-        viewHolder.remove.setOnClickListener(new View.OnClickListener() {
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View view) {
-                callbacks.onDelete(userModel);
+            public boolean onLongClick(View v) {
+
+                if (isAdmin) {
+                    if (!userModel.getId().equals(SharedPrefs.getUserModel().getId())) {
+
+                        callbacks.onDelete(userModel);
+                    }
+                }
+                return false;
             }
         });
+
+
+        viewHolder.canMessage.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isPressed()) {
+                    if (isChecked) {
+                        if (!userModel.getId().equals(SharedPrefs.getUserModel().getId())) {
+                            callbacks.onAllowToMessage(userModel, true);
+                        }
+                    }
+                }
+            }
+        });
+
 
     }
 
@@ -102,13 +142,13 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView name, admin;
-        ImageView remove;
         CircleImageView picture;
+        Switch canMessage;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             name = itemView.findViewById(R.id.name);
-            remove = itemView.findViewById(R.id.remove);
+            canMessage = itemView.findViewById(R.id.canMessage);
             admin = itemView.findViewById(R.id.admin);
             picture = itemView.findViewById(R.id.picture);
         }
@@ -117,5 +157,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsAdapte
 
     public interface ParticipantsAdapterCallbacks {
         public void onDelete(UserModel model);
+
+        public void onAllowToMessage(UserModel model, boolean canMessage);
     }
 }

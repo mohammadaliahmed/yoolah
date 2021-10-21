@@ -63,7 +63,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginLeft="5sp"
-                        android:text="This message was deleted"
+                        android:text="@string/this_message_was_deleted"
                         android:textColor="#EBEBEB"
                         android:textSize="12sp"
                         android:textStyle="italic" />

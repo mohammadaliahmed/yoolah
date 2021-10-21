@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="70dp">
+    android:layout_height="90dp"
+    android:clickable="true"
+    android:foreground="?android:attr/selectableItemBackground">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/picture"
@@ -28,17 +30,16 @@
         android:layout_alignParentBottom="true"
         android:background="#aaa" />
 
-    <ImageView
-        android:id="@+id/remove"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+
+    <Switch
+        android:id="@+id/canMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        android:padding="5dp"
-        android:src="@drawable/ic_cancel"
-
-        android:visibility="gone" />
+        android:layout_margin="5dp"
+        android:text="@string/cannot"
+        android:textSize="10sp" />
 
     <TextView
         android:id="@+id/admin"
@@ -50,7 +51,7 @@
         android:background="@drawable/curved_corners"
 
         android:gravity="center"
-        android:text="Admin"
+        android:text="@string/admin"
         android:textSize="12sp"
         android:visibility="gone" />
 

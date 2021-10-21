@@ -9,6 +9,7 @@ import com.appsinventiv.yoolah.Models.MessageModel;
 import com.appsinventiv.yoolah.Models.RoomModel;
 import com.appsinventiv.yoolah.Models.UserMessages;
 import com.appsinventiv.yoolah.Models.UserModel;
+import com.appsinventiv.yoolah.NetworkResponses.RoomInfoResponse;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -55,6 +56,14 @@ public class SharedPrefs {
 
     public static String getMuted() {
         return preferenceGetter("muted");
+    }
+
+    public static void setAppLanguage(String value) {
+        preferenceSetter("setAppLanguage", value);
+    }
+
+    public static String getAppLanguage() {
+        return preferenceGetter("setAppLanguage");
     }
 
 //    public static void setPickedList(ArrayList<StoriesPickedModel> itemList) {
@@ -147,6 +156,19 @@ public class SharedPrefs {
         );
 
         return retMap;
+    }
+
+    public static void setRoomInfo(RoomInfoResponse model, int roomId) {
+
+        Gson gson = new Gson();
+        String json = gson.toJson(model);
+        preferenceSetter("setRoomInfo" + roomId, json);
+    }
+
+    public static RoomInfoResponse getRoomInfo(int roomId) {
+        Gson gson = new Gson();
+        RoomInfoResponse model = gson.fromJson(preferenceGetter("setRoomInfo" + roomId), RoomInfoResponse.class);
+        return model;
     }
 
     public static void setHomeMessages(HashMap<Integer, UserMessages> itemList) {

@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="Read By"
+        android:text="@string/read_by"
         android:textColor="#000" />
 
     <androidx.cardview.widget.CardView

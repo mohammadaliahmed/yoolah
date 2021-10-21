@@ -112,6 +112,8 @@
         <activity android:name=".Activites.PhoneContacts" />
         <activity android:name=".Activites.ViewMessageInfo" />
         <activity android:name=".Activites.ShareLocation" />
+        <activity android:name=".Activites.LanguageSelection" />
+        <activity android:name=".Activites.Settings" />
     </application>
 
 </manifest>

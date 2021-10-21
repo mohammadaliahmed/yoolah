@@ -315,7 +315,7 @@ public class WordMessagesAdapter extends RecyclerView.Adapter<WordMessagesAdapte
             }
             viewHolder.name.setText(model.getMessageByName());
 
-            viewHolder.time.setText(CommonUtils.getFormattedDate(model.getTime()));
+            viewHolder.time.setText(CommonUtils.getTimeOnly(model.getTime()));
 
 
             viewHolder.image.setOnClickListener(new View.OnClickListener() {

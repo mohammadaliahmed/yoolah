@@ -68,7 +68,7 @@ public class ShareLocation extends AppCompatActivity implements OnMapReadyCallba
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("Share location");
+        this.setTitle(getResources().getString(R.string.share_location));
         Intent i = new Intent(ShareLocation.this, GPSTrackerActivity.class);
 //
         startActivityForResult(i, 1);

@@ -14,12 +14,24 @@ public class RoomModel implements Serializable {
     private String title;
     @SerializedName("subtitle")
     @Expose
-    private String subtitle;   @SerializedName("userid")
+    private String subtitle;
+    @SerializedName("userid")
     @Expose
     private int userid;
     @SerializedName("cover_url")
     @Expose
     private String cover_url;
+    @SerializedName("members")
+    @Expose
+    private int members;
+
+    public int getMembers() {
+        return members;
+    }
+
+    public void setMembers(int members) {
+        this.members = members;
+    }
 
     public int getUserid() {
         return userid;

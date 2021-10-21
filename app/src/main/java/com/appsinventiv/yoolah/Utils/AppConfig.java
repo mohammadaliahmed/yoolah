@@ -7,7 +7,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AppConfig {
-        public static String LPTOP_ID = "http://192.168.100.31/yoolahserver/public/";
+        public static String LPTOP_ID = "http://172.17.0.53/yoolahserver/public/";
 //    public static String LPTOP_ID = "http://192.168.8.104/yoolahserver/";
     public static String SERVER_URL = "http://yoolah.com/";
     public static String BASE_URL = SERVER_URL;

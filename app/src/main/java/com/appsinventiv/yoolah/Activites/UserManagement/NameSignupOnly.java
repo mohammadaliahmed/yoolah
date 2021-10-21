@@ -79,6 +79,7 @@ public class NameSignupOnly extends AppCompatActivity {
     private File filePath;
 
     RelativeLayout asfdasd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,7 +193,7 @@ public class NameSignupOnly extends AppCompatActivity {
 
 
     private void singupNow() {
-        String key = Long.toHexString(Double.doubleToLongBits(Math.random()));
+        String key = "random" + Long.toHexString(Double.doubleToLongBits(Math.random()));
 
         wholeLayout.setVisibility(View.VISIBLE);
         UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
@@ -206,6 +207,7 @@ public class NameSignupOnly extends AppCompatActivity {
         map.addProperty("email", key + "@gmail.com");
         map.addProperty("password", key);
         map.addProperty("gender", gender);
+        map.addProperty("scannedQrCode", SharedPrefs.getQrId());
         Call<SignupResponse> call = getResponse.register(map);
 
         call.enqueue(new Callback<SignupResponse>() {
@@ -231,7 +233,7 @@ public class NameSignupOnly extends AppCompatActivity {
                         Glide.with(NameSignupOnly.this).load(AppConfig.BASE_URL_QR + user.getRandomcode() + "qrcode.png")
                                 .into(qrImage);
                         randomCode.setText(user.getRandomcode());
-                        infoText.setText("Dear " + user.getName() + ", welcome. please copy your ID safely which is needed later in case of login");
+                        infoText.setText( user.getName() + getResources().getString(R.string.please_copy_your_id_safely_which));
 
 
                     } else {

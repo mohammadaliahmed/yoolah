@@ -193,6 +193,16 @@ public class CommonUtils {
         }
     }
 
+    public static String getTimeOnly(long smsTimeInMilis) {
+
+        Calendar smsTime = Calendar.getInstance();
+
+        smsTime.setTimeInMillis(smsTimeInMilis);
+
+        return DateFormat.format("HH:mm a", smsTime).toString();
+
+    }
+
     public static String getDate(long smsTimeInMilis) {
         Calendar smsTime = Calendar.getInstance();
         smsTime.setTimeInMillis(smsTimeInMilis);

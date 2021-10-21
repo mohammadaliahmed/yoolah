@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Recover Login"
+            android:text="@string/recover_login"
             android:textColor="@color/colorBlue"
             android:textSize="25sp" />
 
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="20dp"
-            android:text="Enter user id or scan QR code" />
+            android:text="@string/enter_a_group_id_or_scan_qr_code" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                     android:id="@+id/userId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter Id"
+                    android:hint="@string/enter_id"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="20dp"
-            android:text="OR" />
+            android:text="@string/or" />
 
         <ImageView
             android:id="@+id/scan"
@@ -84,7 +84,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Scan your QR" />
+            android:text="@string/scan_qr" />
     </LinearLayout>
 
 

@@ -18,6 +18,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/pr"
         android:layout_centerHorizontal="true"
-        android:text="Adding you to group.." />
+        android:text="@string/adding_you_to_group.." />
 
 </RelativeLayout>

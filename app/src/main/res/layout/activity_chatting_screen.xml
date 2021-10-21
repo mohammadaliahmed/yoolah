@@ -95,7 +95,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="20dp"
-            android:text="You are not authorized to send message"
+            android:text="@string/you_are_not_authorized_to_send_message"
 
             android:textColor="#fff" />
     </RelativeLayout>
@@ -138,7 +138,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:lines="1"
-                    android:text="Reply To:"
+                    android:text="@string/reply_to"
                     android:textColor="#000"
                     android:textStyle="bold" />
 
@@ -183,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="60dp"
                 android:background="@null"
-                android:hint="Enter Message"
+                android:hint="@string/enter_message"
                 android:inputType="textCapSentences|textMultiLine"
 
                 android:scrollbars="vertical"

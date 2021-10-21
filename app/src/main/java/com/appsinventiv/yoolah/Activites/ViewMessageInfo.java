@@ -53,13 +53,18 @@ public class ViewMessageInfo extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("Message Info");
+        this.setTitle(getResources().getString(R.string.message_info));
         recyclerview = findViewById(R.id.recyclerview);
         messageId = getIntent().getIntExtra("messageId", 0);
         roomId = getIntent().getIntExtra("roomId", 0);
         adapter = new ParticipantsAdapter(this, itemList, false, new ParticipantsAdapter.ParticipantsAdapterCallbacks() {
             @Override
             public void onDelete(UserModel model) {
+
+            }
+
+            @Override
+            public void onAllowToMessage(UserModel model, boolean canMessage) {
 
             }
         });

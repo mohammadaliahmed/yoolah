@@ -21,7 +21,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:text="Choose option" />
+                android:text="@string/choose_option" />
 
             <TextView
                 android:id="@+id/copy"
@@ -30,7 +30,7 @@
                 android:clickable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:padding="10dp"
-                android:text="Copy"
+                android:text="@string/copy"
                 android:textColor="#000"
                 android:textSize="16sp" />
 
@@ -46,7 +46,7 @@
                 android:clickable="true"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:padding="10dp"
-                android:text="Delete"
+                android:text="@string/delete"
                 android:textColor="#000"
                 android:textSize="16sp" />
 

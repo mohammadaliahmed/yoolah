@@ -50,8 +50,8 @@ public class PollToFillAdapter extends RecyclerView.Adapter<PollToFillAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         PollModel model = itemList.get(i);
-        holder.title.setText("Title: " + model.getTitle());
-        holder.question.setText("Question: " + model.getQuestion());
+        holder.title.setText(context.getResources().getString(R.string.title)+": " + model.getTitle());
+        holder.question.setText(context.getResources().getString(R.string.question)+": " + model.getQuestion());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

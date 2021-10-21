@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="10dp"
-                android:text="Scan QR" />
+                android:text="@string/scan_qr" />
 
             <ImageView
                 android:id="@+id/scan"
@@ -44,7 +44,7 @@
                     android:id="@+id/groupId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Group Id"
+                    android:hint="@string/room_id"
                     android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
             <ProgressBar
@@ -63,7 +63,7 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/btn_bg"
                 android:inputType="text"
-                android:text="Enter"
+                android:text="@string/enter"
                 android:textColor="#fff" />
 
 

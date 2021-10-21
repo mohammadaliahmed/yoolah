@@ -40,7 +40,7 @@ public class PhoneContacts extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("Select Contact");
+        this.setTitle(getResources().getString(R.string.select_contact));
 
 
         noContacts = findViewById(R.id.noContacts);

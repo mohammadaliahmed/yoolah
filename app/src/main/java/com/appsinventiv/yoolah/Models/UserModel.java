@@ -48,6 +48,10 @@ public class UserModel {
     @SerializedName("time")
     @Expose
     private long time;
+    @SerializedName("can_message")
+    @Expose
+    private int canMessage;
+
 
 
     @SerializedName("requestsSent")
@@ -59,6 +63,14 @@ public class UserModel {
     @SerializedName("friends")
     @Expose
     private List<Integer> friendsList;
+
+    public int getCanMessage() {
+        return canMessage;
+    }
+
+    public void setCanMessage(int canMessage) {
+        this.canMessage = canMessage;
+    }
 
     public String getRandomcode() {
         return randomcode;

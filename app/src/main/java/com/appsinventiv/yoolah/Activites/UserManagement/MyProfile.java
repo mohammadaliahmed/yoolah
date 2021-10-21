@@ -5,13 +5,16 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 
 import com.appsinventiv.yoolah.Activites.Splash;
@@ -32,6 +35,7 @@ import com.google.gson.JsonObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -57,6 +61,7 @@ public class MyProfile extends AppCompatActivity {
     private String liveUrl;
     private UserModel model;
     boolean ultaAccount = false;
+    RadioButton english, german;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,13 +75,15 @@ public class MyProfile extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("My profile");
+        this.setTitle(getResources().getString(R.string.my_profile));
         wholeLayout = findViewById(R.id.wholeLayout);
         logout = findViewById(R.id.logout);
         update = findViewById(R.id.update);
+
         name = findViewById(R.id.name);
 
         image = findViewById(R.id.image);
+
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +117,8 @@ public class MyProfile extends AppCompatActivity {
                 }
             }
         });
+
+
 
 
         getDataFromServer();

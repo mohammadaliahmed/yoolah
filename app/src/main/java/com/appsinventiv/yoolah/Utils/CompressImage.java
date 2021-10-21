@@ -48,8 +48,8 @@ public class CompressImage {
 
 //      max Height and width values of the compressed image is taken as 816x612
 
-        float maxHeight = 816.0f;
-        float maxWidth = 612.0f;
+        float maxHeight = 500.0f;
+        float maxWidth = 400.0f;
         float imgRatio = actualWidth / actualHeight;
         float maxRatio = maxWidth / maxHeight;
 
@@ -140,24 +140,38 @@ public class CompressImage {
             out = new FileOutputStream(filename);
 
 //          write the compressed bitmap at the destination specified by filename.
-            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
 
         return filename;
 
     }
 
     public String getFilename() {
-        File file = new File(Environment.getExternalStorageDirectory().getPath(), "MyFolder/Images");
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-        String uriSting = (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".jpg");
-        return uriSting;
+//        File file = new File(Environment.getExternalStorageDirectory().getPath(), "MyFolder/Images");
+//        if (!file.exists()) {
+//            file.mkdirs();
+//        }
+//        String uriSting = (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".jpg");
+//        return uriSting;
+        File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
+                + "/Android/media/"
+                + context.getApplicationContext().getPackageName()
+                + "/Files/Compressed");
 
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            mediaStorageDir.mkdirs();
+        }
+
+        String mImageName = "IMG_" + String.valueOf(System.currentTimeMillis()) + ".jpg";
+        String uriString = (mediaStorageDir.getAbsolutePath() + "/" + mImageName);
+
+        return uriString;
     }
 
     private String getRealPathFromURI(String contentURI) {

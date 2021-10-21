@@ -29,7 +29,7 @@
                     android:layout_gravity="center"
                     android:layout_margin="10dp"
                     android:background="@null"
-                    android:hint="Enter Title"
+                    android:hint="@string/enter_title"
                     android:inputType="textCapSentences"
                     android:textColor="@color/colorBlue"
                     android:textSize="20sp"
@@ -42,7 +42,7 @@
                     android:layout_gravity="center"
                     android:layout_margin="10dp"
                     android:background="@null"
-                    android:hint="Enter Question"
+                    android:hint="@string/enter_question"
                     android:inputType="textCapSentences"
                     android:textColor="@color/colorBlue"
                     android:textSize="18sp"
@@ -60,7 +60,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:text="Opt 1:"
+                        android:text="@string/opt_1"
                         android:textColor="@color/colorBlue" />
 
                     <EditText
@@ -97,7 +97,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:text="Opt 1:"
+                        android:text="@string/opt_1"
                         android:textColor="@color/colorBlue" />
 
                     <EditText
@@ -136,7 +136,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:gravity="center"
-                        android:text="Opt 1:"
+                        android:text="@string/opt_1"
                         android:textColor="@color/colorBlue" />
 
                     <EditText
@@ -219,7 +219,7 @@
                     android:layout_margin="10dp"
                     android:background="@drawable/btn_bg"
                     android:inputType="text"
-                    android:text="Submit"
+                    android:text="@string/submit"
                     android:textColor="#fff" />
 
 

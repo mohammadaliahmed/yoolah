@@ -23,7 +23,7 @@
         android:layout_margin="20dp"
         android:background="@drawable/btn_bg"
         android:inputType="text"
-        android:text="Share Location"
+        android:text="@string/share_location"
         android:textColor="#fff" />
 
 </RelativeLayout>

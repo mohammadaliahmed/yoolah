@@ -76,13 +76,13 @@ public class PollsListAdapter extends RecyclerView.Adapter<PollsListAdapter.View
 
 
         holder.title.setText(model.getTitle());
-        holder.voteCount.setText("Total votes " + model.getAnswers().size());
+        holder.voteCount.setText(context.getResources().getString(R.string.total_votes)+" " + model.getAnswers().size());
         holder.question.setText(model.getQuestion());
         holder.option1.setText(model.getOption1());
         holder.option2.setText(model.getOption2());
 
-        holder.vote1.setText( optionOneCount+" votes");
-        holder.vote2.setText( optionTwoCount+" votes");
+        holder.vote1.setText( optionOneCount+" "+context.getResources().getString(R.string.votes));
+        holder.vote2.setText( optionTwoCount+" "+context.getResources().getString(R.string.votes));
 
 
         if (model.getOption3() != null) {

@@ -72,7 +72,7 @@ public class CreatePollActivity extends AppCompatActivity implements Notificatio
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setElevation(0);
         }
-        this.setTitle("Create Poll");
+        this.setTitle(getResources().getString(R.string.create_poll));
 
         roomId = getIntent().getIntExtra("roomId", 0);
         deleteOption4 = findViewById(R.id.deleteOption4);

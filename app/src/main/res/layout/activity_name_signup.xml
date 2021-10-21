@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_marginTop="20dp"
-            android:text="Enter your name to continue"
+            android:text="@string/enter_your_name_to_continue"
             android:textColor="#000"
             android:textSize="20sp" />
 
@@ -32,7 +32,7 @@
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Name"
+                android:hint="@string/name"
                 android:inputType="textCapWords" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +68,7 @@
                     android:id="@+id/infoText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Download and save this qr code for easy login" />
+                    android:text="@string/download_and_save_this_qr_code_for_easy_login" />
             </LinearLayout>
 
 
@@ -152,7 +152,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"
-                android:text="Please copy and save it" />
+                android:text="@string/please_copy_and_save_it" />
         </LinearLayout>
 
 
@@ -164,7 +164,7 @@
             android:layout_margin="30dp"
             android:background="@drawable/btn_bg"
             android:inputType="text"
-            android:text="Continue"
+            android:text="@string/continuee"
             android:textColor="#fff" />
 
         <Button
@@ -175,7 +175,7 @@
             android:layout_margin="30dp"
             android:background="@drawable/btn_bg"
             android:inputType="text"
-            android:text="Continue"
+            android:text="@string/continuee"
             android:textColor="#fff"
             android:visibility="gone" />
     </LinearLayout>

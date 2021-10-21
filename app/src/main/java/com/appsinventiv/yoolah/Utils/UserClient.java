@@ -254,6 +254,13 @@ public interface UserClient {
     );
 
     @Headers("Content-Type: application/json")
+    @POST("api/room/allowToMessage")
+    Call<RoomInfoResponse> allowToMessage(
+            @Body JsonObject jsonObject
+
+    );
+
+    @Headers("Content-Type: application/json")
     @POST("api/message/userMessages")
     Call<UserMessagesResponse> userMessages(
             @Body JsonObject jsonObject

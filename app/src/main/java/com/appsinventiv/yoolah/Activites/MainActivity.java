@@ -19,11 +19,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,12 +86,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        String languageToLoad  = "de"; // your language
+//        Locale locale = new Locale(languageToLoad);
+//        Locale.setDefault(locale);
+//        Configuration config = new Configuration();
+//        config.locale = locale;
+//        getBaseContext().getResources().updateConfiguration(config,
+//                getBaseContext().getResources().getDisplayMetrics());
         setContentView(R.layout.activity_main);
 
-        servertype=findViewById(R.id.servertype);
-        if(AppConfig.BASE_URL.contains("com")){
+
+        servertype = findViewById(R.id.servertype);
+        if (AppConfig.BASE_URL.contains("com")) {
             servertype.setVisibility(View.GONE);
-        }else{
+        } else {
             servertype.setVisibility(View.VISIBLE);
         }
         mWordViewModel = ViewModelProviders.of(this).get(WordViewModel.class);
@@ -325,7 +334,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            startActivity(new Intent(MainActivity.this, MyProfile.class));
+            startActivity(new Intent(MainActivity.this, Settings.class));
             return true;
         }
         if (id == R.id.action_scan) {
@@ -382,6 +391,11 @@ public class MainActivity extends AppCompatActivity {
         map.addProperty("api_username", AppConfig.API_USERNAME);
         map.addProperty("api_password", AppConfig.API_PASSOWRD);
         map.addProperty("code", groupId);
+        map.addProperty("userid", SharedPrefs.getUserModel().getId());
+        if (SharedPrefs.getUserModel().getEmail().startsWith("random")) {
+            map.addProperty("random", "random");
+        }
+
         Call<ApiResponse> call = getResponse.getRoomDetailsFromID(map);
         call.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -391,6 +405,7 @@ public class MainActivity extends AppCompatActivity {
                     RoomModel room = response.body().getRoom();
                     UserModel user = response.body().getUser();
                     if (user != null) {
+                        SharedPrefs.setUserModel(user);
                         dialog.dismiss();
                         WordViewModel mWordViewModel;
                         mWordViewModel = ViewModelProviders.of(MainActivity.this).get(WordViewModel.class);

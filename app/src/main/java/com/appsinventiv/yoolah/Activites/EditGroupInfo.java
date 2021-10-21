@@ -17,6 +17,7 @@ import com.appsinventiv.yoolah.R;
 import com.appsinventiv.yoolah.Utils.AppConfig;
 import com.appsinventiv.yoolah.Utils.CommonUtils;
 import com.appsinventiv.yoolah.Utils.CompressImage;
+import com.appsinventiv.yoolah.Utils.ConnectivityManager;
 import com.appsinventiv.yoolah.Utils.SharedPrefs;
 import com.appsinventiv.yoolah.Utils.UserClient;
 import com.bumptech.glide.Glide;
@@ -60,6 +61,8 @@ public class EditGroupInfo extends AppCompatActivity {
     RelativeLayout wholeLayout;
     CardView leave;
     boolean left = false;
+    private RoomInfoResponse object;
+    TextView participantCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,7 @@ public class EditGroupInfo extends AppCompatActivity {
         roomId = getIntent().getIntExtra("roomId", 0);
         title = findViewById(R.id.title);
         subtitle = findViewById(R.id.subtitle);
+        participantCount = findViewById(R.id.participantCount);
         back = findViewById(R.id.back);
         wholeLayout = findViewById(R.id.wholeLayout);
         leave = findViewById(R.id.leave);
@@ -79,7 +83,20 @@ public class EditGroupInfo extends AppCompatActivity {
         adapter = new ParticipantsAdapter(this, userList, false, new ParticipantsAdapter.ParticipantsAdapterCallbacks() {
             @Override
             public void onDelete(UserModel model) {
-                showDeleteAlert("Do you want to remove this participant?", model);
+                if (ConnectivityManager.isNetworkConnected(EditGroupInfo.this)) {
+                    showAllowMessageAlert(model);
+                } else {
+                    showDeleteAlert("Do you want to remove this participant?", model);
+                }
+            }
+
+            @Override
+            public void onAllowToMessage(UserModel model, boolean canMessage) {
+                if (ConnectivityManager.isNetworkConnected(EditGroupInfo.this)) {
+                    showAllowMessageAlert(model);
+                } else {
+                    CommonUtils.showToast("Please connect to internet");
+                }
             }
         });
 
@@ -92,11 +109,21 @@ public class EditGroupInfo extends AppCompatActivity {
             }
         });
 
-        getRoomInfo();
+
+        if (ConnectivityManager.isNetworkConnected(this)) {
+            getRoomInfo();
+        } else {
+            object = SharedPrefs.getRoomInfo(roomId);
+            if (object != null) {
+                setupUi();
+            }
+        }
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                initmatisse();
+                if (object.getRoom().getUserid() == SharedPrefs.getUserModel().getId()) {
+                    initmatisse();
+                }
             }
         });
 
@@ -104,11 +131,73 @@ public class EditGroupInfo extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 left = true;
-                showDeleteAlert("Leave group?", SharedPrefs.getUserModel());
+                showDeleteAlert(getResources().getString(R.string.leave_group)+"?", SharedPrefs.getUserModel());
             }
         });
 
 
+    }
+
+    private void showAllowMessageAlert(UserModel model) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert");
+        String text = "";
+        String status = "disallow";
+        if (model.getCanMessage() == 1) {
+            text = "Disallow this user to message in group?";
+
+        } else {
+            text = "Allow this user to message in group?";
+            status = "allow";
+        }
+        builder.setMessage(text);
+
+        // add the buttons
+        String finalStatus = status;
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                callAllowMessagingApi(model, finalStatus);
+
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void callAllowMessagingApi(UserModel model, String finalStatus) {
+        wholeLayout.setVisibility(View.VISIBLE);
+        UserClient getResponse = AppConfig.getRetrofit().create(UserClient.class);
+        JsonObject map = new JsonObject();
+        map.addProperty("api_username", AppConfig.API_USERNAME);
+        map.addProperty("api_password", AppConfig.API_PASSOWRD);
+        map.addProperty("roomId", roomId);
+        map.addProperty("userId", model.getId());
+        map.addProperty("status", finalStatus);
+        Call<RoomInfoResponse> call = getResponse.allowToMessage(map);
+        call.enqueue(new Callback<RoomInfoResponse>() {
+            @Override
+            public void onResponse(Call<RoomInfoResponse> call, Response<RoomInfoResponse> response) {
+                wholeLayout.setVisibility(View.GONE);
+                if (response.code() == 200) {
+                    CommonUtils.showToast("Updated");
+
+
+                } else {
+                    CommonUtils.showToast(response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RoomInfoResponse> call, Throwable t) {
+                wholeLayout.setVisibility(View.GONE);
+                CommonUtils.showToast(t.getMessage());
+
+            }
+        });
     }
 
     private void showDeleteAlert(String msg, UserModel model) {
@@ -280,21 +369,9 @@ public class EditGroupInfo extends AppCompatActivity {
             @Override
             public void onResponse(Call<RoomInfoResponse> call, Response<RoomInfoResponse> response) {
                 if (response.code() == 200) {
-                    RoomInfoResponse object = response.body();
+                    object = response.body();
                     if (object.getRoom() != null) {
-                        try {
-                            Glide.with(EditGroupInfo.this).load(AppConfig.BASE_URL_Image + object.getRoom().getCover_url()).placeholder(R.drawable.placeholder).into(image);
-                        } catch (Exception e) {
-
-                        }
-                        title.setText(object.getRoom().getTitle());
-                        subtitle.setText(object.getRoom().getSubtitle());
-                        if (object.getUsers() != null && object.getUsers().size() > 0) {
-                            adapter.setItemList(object.getUsers());
-                        }
-                        if (object.getRoom().getUserid() == SharedPrefs.getUserModel().getId()) {
-                            adapter.setAdmin(true);
-                        }
+                        setupUi();
 
                     }
                 } else {
@@ -307,6 +384,24 @@ public class EditGroupInfo extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void setupUi() {
+        try {
+            Glide.with(EditGroupInfo.this).load(AppConfig.BASE_URL_Image + object.getRoom().getCover_url()).placeholder(R.drawable.placeholder).into(image);
+        } catch (Exception e) {
+
+        }
+        title.setText(object.getRoom().getTitle());
+        subtitle.setText(object.getRoom().getSubtitle());
+        if (object.getUsers() != null && object.getUsers().size() > 0) {
+            userList = object.getUsers();
+            adapter.setItemList(userList);
+        }
+        if (object.getRoom().getUserid() == SharedPrefs.getUserModel().getId()) {
+            adapter.setAdmin(true);
+        }
+        participantCount.setText(getResources().getString(R.string.participants)+": "+(userList.size() + "/" + object.getRoom().getMembers()));
     }
 }
 
